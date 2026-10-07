@@ -1,0 +1,62 @@
+/* ============================================================
+   SITE FIX — readability, stacking, stability
+   ============================================================ */
+
+/* Clean stacking */
+#particles { z-index: 0 !important; pointer-events: none !important; }
+.mesh, .stars-layer, .light-orb { z-index: 0 !important; pointer-events: none !important; }
+#interactiveLight, #interactiveLightSoft { z-index: 1 !important; pointer-events: none !important; }
+
+.header { z-index: 1000 !important; }
+.hero, .section, .footer { position: relative; z-index: 2; }
+.section > .container, .menu-section > .container { position: relative; z-index: 3; }
+
+.wa-float, .call-float, .back-top, .mobile-book-bar {
+  z-index: 5000 !important;
+  pointer-events: auto !important;
+}
+.habeeb-popup { z-index: 2147483646 !important; }
+
+/* Readable sections over effects */
+.section {
+  background: rgba(12, 9, 7, 0.88) !important;
+}
+.about, .gallery, .booking, .catering, .specials, .menu-section, .reviews, .faq {
+  background: rgba(14, 10, 8, 0.9) !important;
+}
+
+/* Images don't break layout */
+img {
+  max-width: 100%;
+  height: auto;
+}
+.gal-item img,
+.special-card img,
+.hero-media img {
+  object-fit: cover;
+}
+
+/* Forms usable */
+input, select, textarea, button {
+  max-width: 100%;
+}
+
+/* Menu tabs stay usable */
+.menu-tabs-wrap {
+  z-index: 4;
+  position: relative;
+}
+.tab {
+  pointer-events: auto !important;
+}
+
+/* Don't let fixed background break mobile scroll */
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll !important;
+  }
+  #interactiveLight,
+  #interactiveLightSoft {
+    display: none !important;
+  }
+}

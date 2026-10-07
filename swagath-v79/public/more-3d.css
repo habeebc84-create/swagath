@@ -1,0 +1,65 @@
+/* Performance-safe extras — no infinite box-shadow animations */
+
+.feature-card,
+.special-card {
+  position: relative;
+}
+
+/* spotlight removed — was costly on PC */
+
+/* menu row entrance — only first 8 rows, short */
+.menu-panel.active .menu-row {
+  animation: rowSlide 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.menu-panel.active .menu-row:nth-child(1) { animation-delay: 0.02s; }
+.menu-panel.active .menu-row:nth-child(2) { animation-delay: 0.04s; }
+.menu-panel.active .menu-row:nth-child(3) { animation-delay: 0.06s; }
+.menu-panel.active .menu-row:nth-child(4) { animation-delay: 0.08s; }
+.menu-panel.active .menu-row:nth-child(5) { animation-delay: 0.1s; }
+.menu-panel.active .menu-row:nth-child(6) { animation-delay: 0.12s; }
+.menu-panel.active .menu-row:nth-child(n+7) { animation-delay: 0.14s; }
+@keyframes rowSlide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* soft static glow on primary CTA — NO infinite animation */
+.btn-primary {
+  box-shadow: 0 8px 28px rgba(224,177,42,0.32) !important;
+}
+
+.nav-link:not(.nav-cta) {
+  position: relative;
+}
+.nav-link:not(.nav-cta)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 0;
+  height: 2px;
+  background: #e0b12a;
+  transition: width 0.25s, left 0.25s;
+}
+.nav-link:not(.nav-cta):hover::after {
+  width: 55%;
+  left: 22%;
+}
+
+.section-title {
+  position: relative;
+  display: inline-block;
+}
+.section-head .section-title::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 3px;
+  margin: 0.75rem auto 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #e0b12a, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-panel.active .menu-row { animation: none !important; }
+}

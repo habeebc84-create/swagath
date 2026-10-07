@@ -1,0 +1,220 @@
+/* ============================================================
+   BEAUTY LAYER — refined fine-dining look
+   ============================================================ */
+
+/* Softer page canvas */
+body {
+  background:
+    radial-gradient(ellipse 100% 70% at 50% -10%, rgba(160, 100, 30, 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 40%, rgba(90, 35, 15, 0.1), transparent 50%),
+    #060403 !important;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Elegant section spacing */
+.section {
+  padding-top: 5rem !important;
+  padding-bottom: 5rem !important;
+}
+@media (min-width: 900px) {
+  .section {
+    padding-top: 6.5rem !important;
+    padding-bottom: 6.5rem !important;
+  }
+}
+
+/* Section headers — editorial */
+.section-head {
+  text-align: center;
+  margin-bottom: 2.75rem;
+}
+.section-label {
+  display: inline-block;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.32em !important;
+  text-transform: uppercase;
+  color: #e0b12a !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.85rem;
+  opacity: 0.95;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-size: clamp(2.1rem, 4.5vw, 3.1rem) !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em;
+  background: linear-gradient(105deg, #f7efe4 0%, #f5d06a 50%, #e0b12a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.75rem !important;
+}
+.section-desc {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  color: rgba(247, 239, 228, 0.55);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Gold divider under titles */
+.section-head .section-title::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin: 1rem auto 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #e0b12a, transparent);
+  opacity: 0.85;
+}
+
+/* Cards — richer surface */
+.feature-card,
+.special-card,
+.cater-card,
+.review-card,
+.contact-card {
+  border-radius: 20px !important;
+  border: 1px solid rgba(224, 177, 42, 0.14) !important;
+  background: linear-gradient(160deg, rgba(36, 24, 18, 0.95), rgba(14, 10, 8, 0.92)) !important;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.15),
+    0 18px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 230, 180, 0.06) !important;
+}
+
+.feature-card h3,
+.special-body h3,
+.cater-card h3 {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-size: 1.35rem !important;
+  font-weight: 600 !important;
+  color: #f7efe4 !important;
+}
+
+.feature-icon {
+  font-size: 1.75rem;
+  filter: drop-shadow(0 4px 12px rgba(224, 177, 42, 0.25));
+}
+
+/* Specials price badge */
+.special-price {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(224, 177, 42, 0.12);
+  border: 1px solid rgba(224, 177, 42, 0.3);
+  color: #f5d06a !important;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+/* Menu shell */
+.menu-shell {
+  border-radius: 22px !important;
+  border: 1px solid rgba(224, 177, 42, 0.18) !important;
+  background: linear-gradient(180deg, #1a120e, #100c0a) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 220, 150, 0.05) !important;
+  padding: 1.75rem 1.5rem !important;
+}
+.menu-row {
+  padding: 0.85rem 0.35rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+.menu-row .name {
+  font-weight: 600;
+  color: rgba(247, 239, 228, 0.92);
+}
+.menu-row .price {
+  color: #f5d06a !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Gallery rounded */
+.gal-item {
+  border-radius: 18px !important;
+  overflow: hidden;
+  border: 1px solid rgba(224, 177, 42, 0.1);
+}
+.gal-caption {
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Reviews quote style */
+.review-card blockquote {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-size: 1.15rem !important;
+  font-style: italic;
+  line-height: 1.55;
+  color: rgba(247, 239, 228, 0.88);
+}
+.review-card .stars {
+  color: #e0b12a;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.65rem;
+}
+
+/* Buttons more refined */
+.btn-primary {
+  letter-spacing: 0.04em;
+  border-radius: 999px !important;
+}
+.btn-ghost {
+  border-radius: 999px !important;
+}
+
+/* Hero polish */
+.hero-title {
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.55) !important;
+}
+.hero-sub {
+  color: rgba(247, 239, 228, 0.65) !important;
+  line-height: 1.55;
+}
+.meta-chip {
+  border-radius: 14px !important;
+  border: 1px solid rgba(224, 177, 42, 0.18) !important;
+  background: rgba(20, 14, 12, 0.55) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Footer softer */
+.footer {
+  padding-top: 3.5rem !important;
+  padding-bottom: 2.5rem !important;
+  background: linear-gradient(180deg, #0a0705, #050302) !important;
+}
+.footer h4 {
+  color: #f5d06a;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+/* Marquee chips refined */
+.marquee-chip {
+  border-radius: 999px !important;
+  border-color: rgba(224, 177, 42, 0.28) !important;
+  background: rgba(18, 12, 10, 0.92) !important;
+}
+
+/* Subtle section top line */
+.section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(224, 177, 42, 0.15), transparent);
+  pointer-events: none;
+}

@@ -1,0 +1,23 @@
+/* Match admin particle look */
+#particles {
+  display: block !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.65 !important;
+}
+
+.section {
+  position: relative !important;
+  z-index: 2 !important;
+  background: rgba(12, 9, 7, 0.88) !important;
+}
+.about, .gallery, .booking, .catering, .specials, .menu-section, .reviews, .faq {
+  background: rgba(14, 10, 8, 0.9) !important;
+}
+.hero, .footer { position: relative; z-index: 2; }
+.header { z-index: 1000 !important; }
+.wa-float, .call-float, .back-top, .mobile-book-bar {
+  z-index: 5000 !important;
+}

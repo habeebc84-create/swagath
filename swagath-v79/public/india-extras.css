@@ -1,0 +1,191 @@
+/* Seamless RTL marquee — continuous infinite loop */
+.marquee-wrap {
+  margin: 2.25rem 0 0;
+  overflow: hidden;
+  position: relative;
+  border-top: 1px solid rgba(224,177,42,0.14);
+  border-bottom: 1px solid rgba(224,177,42,0.14);
+  padding: 0.9rem 0;
+  background: rgba(224,177,42,0.04);
+}
+.marquee-wrap::before,
+.marquee-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  z-index: 2;
+  pointer-events: none;
+}
+.marquee-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, #100c0a, transparent);
+}
+.marquee-wrap::after {
+  right: 0;
+  background: linear-gradient(270deg, #100c0a, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marqueeRTL 32s linear infinite;
+}
+.marquee-wrap:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.marquee-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 0.55rem 1.15rem;
+  border-radius: 999px;
+  background: rgba(22, 16, 14, 0.95);
+  border: 1px solid rgba(224,177,42,0.25);
+  color: rgba(247,239,228,0.9);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+}
+.marquee-chip i {
+  font-style: normal;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* -50% = exactly one group width when 2 identical groups */
+@keyframes marqueeRTL {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    row-gap: 0.5rem;
+  }
+  .marquee-group:last-child { display: none; }
+  .marquee-wrap::before,
+  .marquee-wrap::after { display: none; }
+}
+
+.facilities { display: none; }
+
+/* FAQ */
+.faq { background: #0a0706 !important; }
+.faq-list { max-width: 720px; margin: 0 auto; }
+.faq-item {
+  border: 1px solid rgba(224,177,42,0.15);
+  border-radius: 14px;
+  margin-bottom: 0.75rem;
+  background: rgba(22,16,14,0.8);
+  overflow: hidden;
+}
+.faq-item summary {
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #f7efe4;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  color: #e0b12a;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+.faq-item[open] summary::after { content: '\2212'; }
+.faq-item p {
+  padding: 0 1.25rem 1.15rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(247,239,228,0.65);
+  line-height: 1.55;
+}
+
+/* Google review CTA */
+.review-cta {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.review-cta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(224,177,42,0.35);
+  color: #f5d06a;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: background 0.3s, transform 0.3s;
+}
+.review-cta a:hover {
+  background: rgba(224,177,42,0.12);
+  transform: translateY(-2px);
+}
+
+/* Call + WhatsApp floats */
+.call-float {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 9.5rem;
+  z-index: 1200;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e0b12a;
+  color: #1a0c00 !important;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+  box-shadow: 0 8px 24px rgba(224,177,42,0.4);
+  transition: transform 0.3s;
+}
+.call-float:hover { transform: scale(1.08); }
+.wa-float {
+  bottom: 5.8rem !important;
+  right: 1.1rem !important;
+  z-index: 1200 !important;
+}
+.back-top {
+  right: 1.1rem !important;
+  bottom: 13.2rem !important;
+}
+
+.menu-note {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(247,239,228,0.5);
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .mobile-book-bar { display: block; }
+  .call-float { bottom: 9.2rem; right: 0.9rem; }
+  .wa-float { bottom: 5.5rem !important; right: 0.9rem !important; }
+  .back-top { bottom: 12.8rem !important; right: 0.9rem !important; }
+  .marquee-track { animation-duration: 28s; }
+}

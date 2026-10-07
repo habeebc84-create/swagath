@@ -1,0 +1,107 @@
+/* Visible UI polish — no selector mismatches */
+
+/* Card surface */
+.feature-card,
+.special-card,
+.cater-card,
+.review-card,
+.contact-card {
+  background: linear-gradient(165deg, rgba(32, 22, 16, 0.95), rgba(12, 9, 7, 0.92));
+  border: 1px solid rgba(224, 177, 42, 0.16);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 220, 150, 0.05);
+}
+
+/* Shine only on fine pointer — uses ::before carefully */
+@media (hover: hover) and (pointer: fine) {
+  .special-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .special-card > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Section titles */
+.section-label {
+  letter-spacing: 0.26em;
+  color: #e0b12a;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+/* Price gold */
+.menu-row .price {
+  color: #f5d06a;
+  font-weight: 700;
+}
+
+/* Form focus */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(224, 177, 42, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(224, 177, 42, 0.18);
+}
+
+/* Mobile sticky book — FoodShot conversion pattern */
+.mobile-book-bar {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
+  padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, rgba(6, 4, 3, 0.97) 28%);
+  pointer-events: none;
+}
+.mobile-book-bar a {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 0.9rem 1.25rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f5d06a, #c4920f);
+  color: #1a0c00 !important;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 28px rgba(224, 177, 42, 0.45);
+  text-decoration: none;
+}
+@media (max-width: 768px) {
+  .mobile-book-bar { display: block; }
+  body { padding-bottom: 4.75rem; }
+  .wa-float { bottom: 5.2rem !important; }
+  .call-float { bottom: 8.9rem !important; }
+  .back-top { bottom: 12.5rem !important; }
+}
+
+/* Hero entrance — always plays once */
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-content > * {
+  animation: heroIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-content > *:nth-child(1) { animation-delay: 0.05s; }
+.hero-content > *:nth-child(2) { animation-delay: 0.15s; }
+.hero-content > *:nth-child(3) { animation-delay: 0.25s; }
+.hero-content > *:nth-child(4) { animation-delay: 0.35s; }
+.hero-content > *:nth-child(5) { animation-delay: 0.45s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-content > * { animation: none !important; opacity: 1 !important; }
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}

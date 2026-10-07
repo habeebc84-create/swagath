@@ -1,0 +1,113 @@
+/* Catering & Bulk Orders */
+.catering { background: #100c0a; }
+.cater-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-bottom: 2.5rem;
+}
+@media (max-width: 900px) {
+  .cater-grid { grid-template-columns: 1fr; }
+}
+.cater-card {
+  background: linear-gradient(165deg, rgba(36,24,20,0.95), rgba(18,12,10,0.98));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.75rem;
+  transition: transform 0.45s var(--ease), border-color 0.3s, box-shadow 0.45s;
+}
+.cater-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(224,177,42,0.35);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.35);
+}
+.cater-card.featured {
+  border-color: rgba(224,177,42,0.4);
+  box-shadow: 0 0 0 1px rgba(224,177,42,0.15), 0 16px 40px rgba(0,0,0,0.3);
+}
+.cater-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1a0c00;
+  background: linear-gradient(135deg, var(--gold2), var(--gold));
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  margin-bottom: 0.85rem;
+}
+.cater-card h3 {
+  font-family: var(--font-d);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 0.4rem;
+}
+.cater-price {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold2);
+  margin-bottom: 0.85rem;
+}
+.cater-price small {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.cater-card ul {
+  list-style: none;
+  margin-bottom: 1.25rem;
+}
+.cater-card li {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 0.3rem 0;
+  padding-left: 1.1rem;
+  position: relative;
+}
+.cater-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-weight: 700;
+}
+.cater-info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.info-pill {
+  text-align: center;
+  padding: 1.1rem 0.75rem;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+}
+.info-pill strong {
+  display: block;
+  font-family: var(--font-d);
+  font-size: 1.25rem;
+  color: var(--gold2);
+  margin-bottom: 0.2rem;
+}
+.info-pill span {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.cater-form-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+}
+@media (max-width: 960px) {
+  .cater-grid { grid-template-columns: 1fr; }
+  .cater-info { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .cater-info { grid-template-columns: 1fr; }
+}

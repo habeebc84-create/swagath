@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/api/media?key=uploads%2F1791098236820-0suyqr-swagath-logo.png" type="image/png">
+  <title>Admin Dashboard · Swagath</title>
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    :root {
+      --bg: #060403;
+      --panel: #120c0a;
+      --gold: #e0b12a;
+      --gold2: #f5d06a;
+      --cream: #f7efe4;
+      --muted: rgba(247,239,228,0.55);
+      --border: rgba(224,177,42,0.2);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(160,100,30,0.12), transparent 50%),
+        var(--bg);
+      color: var(--cream);
+    }
+    a { color: var(--gold2); }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 1.5rem 1.15rem 3rem; }
+
+    /* Login */
+    .login-box {
+      max-width: 400px; margin: 12vh auto; padding: 2.25rem 1.75rem;
+      background: linear-gradient(165deg, #1a120e, #0c0908);
+      border: 1px solid rgba(224,177,42,0.3);
+      border-radius: 22px;
+      box-shadow: 0 0 40px rgba(224,177,42,0.12), 0 24px 60px rgba(0,0,0,0.5);
+    }
+    .login-box h1 { text-align: center; color: var(--gold2); font-size: 1.45rem; margin-bottom: 0.35rem; }
+    .login-box .tag { text-align: center; font-size: 0.78rem; color: var(--muted); margin-bottom: 1.5rem; }
+    label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.35rem; letter-spacing: 0.04em; }
+    input[type=text], input[type=password], input[type=url], input[type=search], select, textarea {
+      width: 100%; padding: 0.75rem 1rem; margin-bottom: 0.9rem;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04); color: var(--cream); font-size: 0.92rem;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(224,177,42,0.15); }
+    .btn-login {
+      width: 100%; padding: 0.9rem; border: none; border-radius: 999px;
+      background: linear-gradient(135deg, #f5d06a, #c4920f); color: #1a0c00;
+      font-weight: 800; font-size: 0.95rem; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(224,177,42,0.35);
+    }
+    .btn-login:hover { filter: brightness(1.06); }
+    .err { color: #f87171; font-size: 0.85rem; text-align: center; margin-top: 0.75rem; min-height: 1.2em; }
+    .hint { margin-top: 1.25rem; font-size: 0.72rem; opacity: 0.4; text-align: center; }
+
+    /* Top bar */
+    .topbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem;
+      margin-bottom: 1.25rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar h1 { font-size: 1.25rem; color: var(--gold2); }
+    .topbar .sub { font-size: 0.78rem; color: var(--muted); }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .top-actions a, .top-actions button {
+      padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--gold2); cursor: pointer; text-decoration: none;
+    }
+    .top-actions a:hover, .top-actions button:hover { background: rgba(224,177,42,0.12); }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.65rem; margin-bottom: 1.25rem; }
+    @media (max-width: 800px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 480px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat {
+      background: linear-gradient(160deg, #1a120e, #0e0a08);
+      border: 1px solid var(--border); border-radius: 14px; padding: 1rem 0.75rem; text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .stat strong { display: block; font-size: 1.5rem; color: var(--gold2); }
+    .stat span { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Tabs */
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;
+      padding: 0.4rem; border-radius: 14px;
+      background: rgba(18,12,10,0.9); border: 1px solid var(--border);
+    }
+    .tabs button {
+      flex: 1; min-width: 100px; padding: 0.6rem 0.75rem; border: none; border-radius: 10px;
+      background: transparent; color: var(--muted); font-weight: 700; font-size: 0.8rem; cursor: pointer;
+      transition: background 0.25s, color 0.25s;
+    }
+    .tabs button:hover { color: var(--gold2); }
+    .tabs button.active {
+      background: linear-gradient(135deg, #f5d06a, #c4920f); color: #1a0c00;
+      box-shadow: 0 4px 16px rgba(224,177,42,0.35);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    .panel-card {
+      background: linear-gradient(180deg, #140e0c, #0c0908);
+      border: 1px solid var(--border); border-radius: 18px; padding: 1.25rem;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    }
+    .panel-card h2 { font-size: 1rem; color: var(--gold); margin-bottom: 0.35rem; }
+    .panel-card .help { font-size: 0.78rem; color: var(--muted); margin-bottom: 1rem; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem; align-items: center; }
+    .toolbar input[type=search] { max-width: 240px; margin-bottom: 0; }
+    .toolbar select { max-width: 160px; margin-bottom: 0; }
+
+    .gal-form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 0.5rem; margin-bottom: 1rem; align-items: end; }
+    .gal-form.g2 { grid-template-columns: 1.4fr 1fr auto; }
+    .gal-form.g3 { grid-template-columns: 1fr auto; }
+    @media (max-width: 700px) {
+      .gal-form, .gal-form.g2, .gal-form.g3 { grid-template-columns: 1fr; }
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    th, td { padding: 0.65rem 0.45rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: middle; }
+    th { color: var(--gold); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    tr:hover td { background: rgba(224,177,42,0.04); }
+    .status { padding: 0.15rem 0.5rem; border-radius: 20px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+    .pending,.new { background: #f59e0b22; color: #fbbf24; }
+    .confirmed { background: #10b98122; color: #34d399; }
+    .cancelled { background: #ef444422; color: #f87171; }
+    .completed { background: #6366f122; color: #a5b4fc; }
+    button, .btn { border: none; padding: 0.32rem 0.55rem; border-radius: 8px; cursor: pointer; font-size: 0.72rem; font-weight: 700; margin: 0.1rem; }
+    .btn-c { background: #10b981; color: #fff; }
+    .btn-x { background: #ef4444; color: #fff; }
+    .btn-d { background: #6366f1; color: #fff; }
+    .btn-g { background: linear-gradient(135deg, #f5d06a, #e0b12a); color: #1a0c00; }
+    .empty { text-align: center; padding: 1.75rem; opacity: 0.5; }
+    .gal-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
+    .scroll { overflow-x: auto; max-height: 480px; overflow-y: auto; }
+    .foot-note { margin-top: 1.5rem; text-align: center; font-size: 0.72rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div id="loginScreen" class="wrap">
+    <div class="login-box">
+      <h1>స్వాగత్ Admin</h1>
+      <p class="tag">Staff dashboard · Menu · Bookings · Gallery · Catering</p>
+      <form id="loginForm">
+        <label for="username">User ID</label>
+        <input id="username" name="username" type="text" autocomplete="username" required placeholder="admin">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+        <button type="submit" class="btn-login">Sign in</button>
+        <p class="err" id="loginErr"></p>
+      </form>
+      <p class="hint">Staff only · Not linked on public site</p>
+    </div>
+  </div>
+
+  <div id="dash" class="wrap" style="display:none;">
+    <div class="topbar">
+      <div>
+        <h1>Staff dashboard</h1>
+        <p class="sub">Swagath Multicuisine · Kalikiri</p>
+      </div>
+      <div class="top-actions">
+        <a href="/" target="_blank" rel="noopener">View live site</a>
+        <button type="button" id="refreshBtn">Refresh</button>
+        <button type="button" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><strong id="sMenu">0</strong><span>Dishes</span></div>
+      <div class="stat"><strong id="sTotal">0</strong><span>Bookings</span></div>
+      <div class="stat"><strong id="sPending">0</strong><span>Pending</span></div>
+      <div class="stat"><strong id="sCater">0</strong><span>Catering</span></div>
+      <div class="stat"><strong id="sGal">0</strong><span>Gallery</span></div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="active" data-panel="p-menu">Menu</button>
+      <button type="button" data-panel="p-gallery">Gallery</button>
+      <button type="button" data-panel="p-book">Bookings</button>
+      <button type="button" data-panel="p-cater">Catering</button>
+    </div>
+
+    <!-- MENU -->
+    <div class="panel active" id="p-menu">
+      <div class="panel-card">
+        <h2>Menu — names & prices</h2>
+        <p class="help">Add, edit, delete dishes. Changes show on the public website menu.</p>
+        <div class="gal-form">
+          <select id="mCat">
+            <option value="soups">Soups</option>
+            <option value="veg-starters">Veg Starters</option>
+            <option value="nonveg-starters">Non-Veg Starters</option>
+            <option value="tandoori">Tandoori</option>
+            <option value="egg-mutton">Egg · Seafood · Mutton</option>
+            <option value="rice">Rice & Meals</option>
+            <option value="biryani">Biryani</option>
+          </select>
+          <input id="mName" type="text" placeholder="Dish name *">
+          <input id="mPrice" type="text" placeholder="Price e.g. ₹200">
+          <input id="mGroup" type="text" placeholder="Group (optional)">
+          <button class="btn-g" type="button" onclick="addMenu()">Add dish</button>
+        </div>
+        <div class="toolbar">
+          <input type="search" id="menuSearch" placeholder="Search dishes…" oninput="filterMenu()">
+          <select id="menuFilterCat" onchange="filterMenu()">
+            <option value="">All categories</option>
+            <option value="soups">Soups</option>
+            <option value="veg-starters">Veg Starters</option>
+            <option value="nonveg-starters">Non-Veg</option>
+            <option value="tandoori">Tandoori</option>
+            <option value="egg-mutton">Egg · Seafood</option>
+            <option value="rice">Rice</option>
+            <option value="biryani">Biryani</option>
+          </select>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Category</th><th>Name</th><th>Price</th><th>Group</th><th></th></tr></thead>
+            <tbody id="menuBody"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="panel" id="p-gallery">
+      <div class="panel-card">
+        <h2>Gallery — Visual Feast</h2>
+        <p class="help">Admin only · Upload from laptop/phone (visitors cannot upload)</p>
+        <div class="gal-form g2">
+          <input id="galFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple style="padding:0.4rem;">
+          <input id="galCap" type="text" placeholder="Caption (optional)">
+          <button class="btn-g" type="button" onclick="addGal()">Upload photo(s)</button>
+        </div>
+        <div class="gal-form g3">
+          <input id="galUrl" type="url" placeholder="Or paste image URL (https://…)">
+          <button class="btn-g" type="button" onclick="addGalUrl()">Add URL</button>
+        </div>
+        <p id="galStatus" style="font-size:0.75rem;opacity:0.6;margin:0.35rem 0 1rem;min-height:1.1em;"></p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th></th><th>Caption</th><th>Order</th><th>Size</th><th></th></tr></thead>
+            <tbody id="galBody"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="panel" id="p-book">
+      <div class="panel-card">
+        <h2>Table bookings</h2>
+        <p class="help">Confirm, cancel, complete, or delete reservations.</p>
+        <div class="toolbar">
+          <input type="search" id="bookSearch" placeholder="Search name or phone…" oninput="filterBooks()">
+          <select id="bookFilterStatus" onchange="filterBooks()">
+            <option value="">All status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Name</th><th>Phone</th><th>Date</th><th>Time</th><th>Guests</th><th>Status</th><th></th></tr></thead>
+            <tbody id="bookBody"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATERING -->
+    <div class="panel" id="p-cater">
+      <div class="panel-card">
+        <h2>Catering inquiries</h2>
+        <p class="help">Bulk orders & event requests from the website form.</p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Name</th><th>Phone</th><th>Event</th><th>Guests</th><th>Date</th><th>Status</th><th></th></tr></thead>
+            <tbody id="caterBody"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="foot-note">Built by Habeeb · Swagath Admin · <a href="https://wa.me/919121618732" target="_blank" rel="noopener">WhatsApp support</a></p>
+  </div>
+
+  <script>
+    var API = (window.__HATCHABLE__ && window.__HATCHABLE__.api) || '/api';
+    var TOKEN_KEY = 'swagath_staff_token';
+    var lastBooks = [];
+    var lastMenu = [];
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    function getToken() { return sessionStorage.getItem(TOKEN_KEY) || ''; }
+    function setToken(t) { sessionStorage.setItem(TOKEN_KEY, t); }
+    function clearToken() { sessionStorage.removeItem(TOKEN_KEY); }
+
+    /* Tabs */
+    document.querySelectorAll('.tabs button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        var p = document.getElementById(btn.getAttribute('data-panel'));
+        if (p) p.classList.add('active');
+      });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var err = document.getElementById('loginErr');
+      err.textContent = '';
+      try {
+        var res = await fetch(API + '/staff/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value.trim(),
+            password: document.getElementById('password').value
+          })
+        });
+        var data = await res.json();
+        if (data.success && data.token) {
+          setToken(data.token);
+          showDash();
+        } else {
+          err.textContent = data.error || 'Login failed';
+        }
+      } catch (ex) {
+        err.textContent = 'Network error';
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      clearToken();
+      document.getElementById('dash').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'block';
+    });
+    document.getElementById('refreshBtn').addEventListener('click', function () { load(); });
+
+    async function showDash() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dash').style.display = 'block';
+      await load();
+    }
+
+    async function authFetch(path, opts) {
+      opts = opts || {};
+      opts.headers = Object.assign({}, opts.headers || {}, {
+        'Content-Type': 'application/json',
+        'X-Staff-Token': getToken()
+      });
+      return fetch(API + path, opts);
+    }
+
+    function renderBooks(books) {
+      lastBooks = books || [];
+      filterBooks();
+    }
+
+    function filterBooks() {
+      var q = (document.getElementById('bookSearch') && document.getElementById('bookSearch').value || '').toLowerCase();
+      var st = (document.getElementById('bookFilterStatus') && document.getElementById('bookFilterStatus').value) || '';
+      var books = lastBooks.filter(function (b) {
+        if (st && b.status !== st) return false;
+        if (!q) return true;
+        return String(b.name || '').toLowerCase().indexOf(q) >= 0 || String(b.phone || '').indexOf(q) >= 0;
+      });
+      document.getElementById('bookBody').innerHTML = books.length ? books.map(function (b) {
+        return '<tr><td>' + esc(b.name) + '</td><td><a href="tel:' + esc(b.phone) + '">' + esc(b.phone) + '</a></td><td>' + esc(b.booking_date) + '</td><td>' + esc(b.booking_time) + '</td><td>' + b.party_size + '</td><td><span class="status ' + b.status + '">' + b.status + '</span></td><td>' +
+          (b.status === 'pending' ? '<button class="btn-c" onclick="upd(\'' + b.id + '\',\'confirmed\')">OK</button>' : '') +
+          (b.status !== 'cancelled' && b.status !== 'completed' ? '<button class="btn-x" onclick="upd(\'' + b.id + '\',\'cancelled\')">X</button>' : '') +
+          (b.status === 'confirmed' ? '<button class="btn-d" onclick="upd(\'' + b.id + '\',\'completed\')">Done</button>' : '') +
+          '<button class="btn-x" onclick="delBook(\'' + b.id + '\')">Delete</button></td></tr>';
+      }).join('') : '<tr><td colspan="7" class="empty">No bookings</td></tr>';
+    }
+
+    async function load() {
+      try {
+        var br = await authFetch('/bookings/list');
+        if (br.status === 401) { clearToken(); location.reload(); return; }
+        var bd = await br.json();
+        var books = bd.bookings || [];
+        document.getElementById('sTotal').textContent = books.length;
+        document.getElementById('sPending').textContent = books.filter(function (b) { return b.status === 'pending'; }).length;
+        renderBooks(books);
+
+        var cr = await authFetch('/catering/list');
+        var cd = cr.ok ? await cr.json() : { inquiries: [] };
+        var cats = cd.inquiries || [];
+        document.getElementById('sCater').textContent = cats.length;
+        document.getElementById('caterBody').innerHTML = cats.length ? cats.map(function (c) {
+          return '<tr><td>' + esc(c.name) + '</td><td><a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a></td><td>' + esc(c.event_type) + '</td><td>' + c.guest_count + '</td><td>' + esc(c.event_date || '—') + '</td><td><span class="status ' + (c.status || 'new') + '">' + (c.status || 'new') + '</span></td><td><button class="btn-x" type="button" onclick="delCater(\'' + c.id + '\')">Delete</button></td></tr>';
+        }).join('') : '<tr><td colspan="7" class="empty">No inquiries</td></tr>';
+
+        await loadGal();
+        await loadMenu();
+      } catch (e) {
+        document.getElementById('bookBody').innerHTML = '<tr><td colspan="7" class="empty">Error loading</td></tr>';
+      }
+    }
+
+    function filterMenu() {
+      var q = (document.getElementById('menuSearch') && document.getElementById('menuSearch').value || '').toLowerCase();
+      var cat = (document.getElementById('menuFilterCat') && document.getElementById('menuFilterCat').value) || '';
+      var items = lastMenu.filter(function (it) {
+        if (cat && it.category !== cat) return false;
+        if (!q) return true;
+        return String(it.name || '').toLowerCase().indexOf(q) >= 0 || String(it.price || '').toLowerCase().indexOf(q) >= 0;
+      });
+      var body = document.getElementById('menuBody');
+      if (!items.length) {
+        body.innerHTML = '<tr><td colspan="5" class="empty">No dishes match</td></tr>';
+        return;
+      }
+      body.innerHTML = items.map(function (it) {
+        return '<tr data-id="' + it.id + '">' +
+          '<td><select class="m-cat" style="background:#16100e;color:#f5ebe0;border:1px solid rgba(224,177,42,0.2);border-radius:6px;padding:0.25rem;">' +
+          ['soups','veg-starters','nonveg-starters','tandoori','egg-mutton','rice','biryani'].map(function (c) {
+            return '<option value="' + c + '"' + (it.category === c ? ' selected' : '') + '>' + c + '</option>';
+          }).join('') + '</select></td>' +
+          '<td><input class="m-name" value="' + esc(it.name) + '" style="width:100%;min-width:140px;padding:0.35rem;border-radius:6px;border:1px solid rgba(224,177,42,0.2);background:rgba(255,255,255,0.04);color:#f5ebe0;"></td>' +
+          '<td><input class="m-price" value="' + esc(it.price) + '" style="width:100px;padding:0.35rem;border-radius:6px;border:1px solid rgba(224,177,42,0.2);background:rgba(255,255,255,0.04);color:#f5d06a;font-weight:700;"></td>' +
+          '<td><input class="m-group" value="' + esc(it.group_name || '') + '" style="width:100px;padding:0.35rem;border-radius:6px;border:1px solid rgba(224,177,42,0.2);background:rgba(255,255,255,0.04);color:#f5ebe0;"></td>' +
+          '<td><button class="btn-g" type="button" onclick="saveMenu(this)">Save</button> ' +
+          '<button class="btn-x" type="button" onclick="delMenu(\'' + it.id + '\')">Delete</button></td></tr>';
+      }).join('');
+    }
+
+    async function loadMenu() {
+      var r = await authFetch('/menu/admin-list');
+      var d = r.ok ? await r.json() : { items: [] };
+      lastMenu = d.items || [];
+      document.getElementById('sMenu').textContent = lastMenu.length;
+      filterMenu();
+    }
+
+    async function addMenu() {
+      var name = document.getElementById('mName').value.trim();
+      var price = document.getElementById('mPrice').value.trim();
+      if (!name || !price) { alert('Dish name and price required'); return; }
+      await authFetch('/menu/create', {
+        method: 'POST',
+        body: JSON.stringify({
+          category: document.getElementById('mCat').value,
+          name: name,
+          price: price,
+          group_name: document.getElementById('mGroup').value.trim(),
+          sort_order: 50
+        })
+      });
+      document.getElementById('mName').value = '';
+      document.getElementById('mPrice').value = '';
+      document.getElementById('mGroup').value = '';
+      loadMenu();
+    }
+
+    async function saveMenu(btn) {
+      var tr = btn.closest('tr');
+      var id = tr.getAttribute('data-id');
+      await authFetch('/menu/update', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: id,
+          category: tr.querySelector('.m-cat').value,
+          name: tr.querySelector('.m-name').value.trim(),
+          price: tr.querySelector('.m-price').value.trim(),
+          group_name: tr.querySelector('.m-group').value.trim()
+        })
+      });
+      btn.textContent = 'Saved';
+      setTimeout(function () { btn.textContent = 'Save'; }, 1200);
+    }
+
+    async function delMenu(id) {
+      if (!confirm('Delete this dish from the menu?')) return;
+      await authFetch('/menu/delete', { method: 'POST', body: JSON.stringify({ id: id }) });
+      loadMenu();
+    }
+
+    async function loadGal() {
+      var gr = await authFetch('/gallery/list');
+      var gd = gr.ok ? await gr.json() : { items: [] };
+      var items = gd.items || [];
+      document.getElementById('sGal').textContent = items.length;
+      var gb = document.getElementById('galBody');
+      if (!items.length) {
+        gb.innerHTML = '<tr><td colspan="5" class="empty">No photos — add one above</td></tr>';
+        return;
+      }
+      gb.innerHTML = items.map(function (it) {
+        return '<tr><td><img class="gal-thumb" src="' + esc(it.image_url) + '" alt=""></td><td>' + esc(it.caption) + '</td><td>' +
+          '<button type="button" onclick="moveGal(\'' + it.id + '\',' + ((it.sort_order || 0) - 1) + ')">↑</button> ' +
+          '<button type="button" onclick="moveGal(\'' + it.id + '\',' + ((it.sort_order || 0) + 1) + ')">↓</button></td><td>' +
+          '<button type="button" class="btn-g" onclick="toggleLarge(\'' + it.id + '\',' + (!it.is_large) + ')">' + (it.is_large ? 'Large' : 'Normal') + '</button></td><td>' +
+          '<button class="btn-x" type="button" onclick="delGal(\'' + it.id + '\')">Delete</button></td></tr>';
+      }).join('');
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise(function (resolve, reject) {
+        if (!file) return reject(new Error('No file'));
+        if (file.size > 4 * 1024 * 1024) return reject(new Error('Max 4 MB'));
+        var reader = new FileReader();
+        reader.onload = function () { resolve(reader.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function uploadDeviceImage(file) {
+      var dataUrl = await fileToDataUrl(file);
+      var res = await authFetch('/upload/image', {
+        method: 'POST',
+        body: JSON.stringify({ data: dataUrl, filename: file.name, contentType: file.type })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Upload failed');
+      return data.url;
+    }
+
+    async function addGal() {
+      var cap = document.getElementById('galCap').value.trim();
+      var fileInput = document.getElementById('galFile');
+      var status = document.getElementById('galStatus');
+      var files = fileInput.files ? Array.prototype.slice.call(fileInput.files) : [];
+      if (!files.length) { alert('Choose one or more images from your laptop/phone'); return; }
+      status.textContent = 'Uploading ' + files.length + ' photo(s)…';
+      try {
+        for (var i = 0; i < files.length; i++) {
+          status.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + '…';
+          var url = await uploadDeviceImage(files[i]);
+          var caption = files.length === 1 ? cap : (cap ? cap + ' (' + (i + 1) + ')' : files[i].name.replace(/\.[^.]+$/, ''));
+          await authFetch('/gallery/create', {
+            method: 'POST',
+            body: JSON.stringify({ image_url: url, caption: caption, sort_order: 99 + i, is_large: false })
+          });
+        }
+        document.getElementById('galCap').value = '';
+        fileInput.value = '';
+        status.textContent = 'Uploaded successfully';
+        loadGal();
+      } catch (err) {
+        status.textContent = '';
+        alert(err.message || 'Could not upload');
+      }
+    }
+
+    async function addGalUrl() {
+      var url = document.getElementById('galUrl').value.trim();
+      var cap = document.getElementById('galCap').value.trim();
+      if (!url) { alert('Paste an image URL'); return; }
+      try {
+        await authFetch('/gallery/create', {
+          method: 'POST',
+          body: JSON.stringify({ image_url: url, caption: cap, sort_order: 99, is_large: false })
+        });
+        document.getElementById('galUrl').value = '';
+        document.getElementById('galCap').value = '';
+        loadGal();
+      } catch (err) {
+        alert(err.message || 'Could not add URL');
+      }
+    }
+    async function delGal(id) {
+      if (!confirm('Delete this photo?')) return;
+      await authFetch('/gallery/delete', { method: 'POST', body: JSON.stringify({ id: id }) });
+      loadGal();
+    }
+    async function moveGal(id, sort_order) {
+      await authFetch('/gallery/update', { method: 'POST', body: JSON.stringify({ id: id, sort_order: sort_order }) });
+      loadGal();
+    }
+    async function toggleLarge(id, is_large) {
+      await authFetch('/gallery/update', { method: 'POST', body: JSON.stringify({ id: id, is_large: is_large }) });
+      loadGal();
+    }
+    async function upd(id, status) {
+      await authFetch('/bookings/update', { method: 'POST', body: JSON.stringify({ id: id, status: status }) });
+      load();
+    }
+    async function delBook(id) {
+      if (!confirm('Delete this booking permanently?')) return;
+      await authFetch('/bookings/delete', { method: 'POST', body: JSON.stringify({ id: id }) });
+      load();
+    }
+    async function delCater(id) {
+      if (!confirm('Delete this catering inquiry?')) return;
+      await authFetch('/catering/delete', { method: 'POST', body: JSON.stringify({ id: id }) });
+      load();
+    }
+
+    (async function () {
+      var t = getToken();
+      if (!t) return;
+      try {
+        var r = await fetch(API + '/staff/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: t })
+        });
+        var d = await r.json();
+        if (d.ok) showDash();
+        else clearToken();
+      } catch (e) { clearToken(); }
+    })();
+  </script>
+</body>
+</html>

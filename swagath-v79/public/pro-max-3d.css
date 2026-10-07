@@ -1,0 +1,151 @@
+/* PRO MAX 3D — cleaned, no global animation kill */
+:root { --tilt: perspective(1100px); }
+
+html { scroll-behavior: smooth; }
+
+/* Only soften motion when user asks — do NOT zero everything */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero-badge .pulse { animation: none !important; }
+  #particles { display: none !important; }
+}
+
+/* Hero */
+.hero-content { transform-style: preserve-3d; }
+.hero-title {
+  text-shadow: 0 8px 40px rgba(0,0,0,0.55), 0 2px 0 rgba(224,177,42,0.15);
+}
+.hero-media img {
+  will-change: transform;
+  filter: brightness(0.48) contrast(1.08) saturate(1.08);
+}
+
+/* 3D grids */
+.about-grid,
+.specials-grid,
+.gallery-grid,
+.cater-grid {
+  perspective: 1200px;
+}
+
+.feature-card,
+.special-card,
+.cater-card,
+.review-card,
+.gal-item {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    border-color 0.35s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .feature-card:hover {
+    transform: translateY(-14px) rotateX(6deg) scale(1.03);
+    box-shadow:
+      0 28px 56px rgba(0,0,0,0.5),
+      0 0 36px rgba(224,177,42,0.14);
+    border-color: rgba(224,177,42,0.45);
+  }
+  .feature-card:hover .feature-icon {
+    transform: scale(1.15) rotate(-8deg);
+  }
+  .special-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.45), 0 0 28px rgba(224,177,42,0.1);
+  }
+  .special-card:hover img {
+    transform: scale(1.08);
+  }
+  .gal-item:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+    z-index: 3;
+  }
+  .gal-item:hover img {
+    transform: scale(1.1);
+  }
+  .cater-card:hover,
+  .review-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(224,177,42,0.35);
+  }
+}
+
+.special-card img,
+.gal-item img,
+.feature-icon {
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Menu shell depth */
+.menu-shell {
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,220,150,0.06);
+}
+.menu-row {
+  transition: background 0.25s, transform 0.3s, padding-left 0.3s;
+}
+.menu-row:hover {
+  background: rgba(224,177,42,0.07);
+  transform: translateX(6px);
+  padding-left: 0.4rem;
+}
+
+/* Tabs */
+.tab {
+  transition: transform 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+.tab:hover:not(.active) {
+  transform: translateY(-2px);
+  color: #f5d06a;
+}
+.tab.active {
+  box-shadow: 0 6px 20px rgba(224,177,42,0.35);
+}
+
+/* Buttons */
+.btn-primary:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 14px 40px rgba(224,177,42,0.45);
+}
+.btn-ghost:hover {
+  transform: translateY(-3px);
+}
+
+/* Scroll reveal — strong + reliable */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.in {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Stagger by position in parent */
+.about-grid .reveal:nth-child(1) { transition-delay: 0.05s; }
+.about-grid .reveal:nth-child(2) { transition-delay: 0.12s; }
+.about-grid .reveal:nth-child(3) { transition-delay: 0.19s; }
+.about-grid .reveal:nth-child(4) { transition-delay: 0.26s; }
+.specials-grid .reveal:nth-child(1) { transition-delay: 0.06s; }
+.specials-grid .reveal:nth-child(2) { transition-delay: 0.14s; }
+.specials-grid .reveal:nth-child(3) { transition-delay: 0.22s; }
+.cater-grid .reveal:nth-child(1) { transition-delay: 0.05s; }
+.cater-grid .reveal:nth-child(2) { transition-delay: 0.12s; }
+.cater-grid .reveal:nth-child(3) { transition-delay: 0.19s; }
+.gallery-grid .reveal:nth-child(1) { transition-delay: 0.04s; }
+.gallery-grid .reveal:nth-child(2) { transition-delay: 0.08s; }
+.gallery-grid .reveal:nth-child(3) { transition-delay: 0.12s; }
+.gallery-grid .reveal:nth-child(4) { transition-delay: 0.16s; }
+.gallery-grid .reveal:nth-child(5) { transition-delay: 0.2s; }
+
+/* Header glass */
+.header.scrolled {
+  background: rgba(8, 6, 5, 0.95) !important;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.45);
+}

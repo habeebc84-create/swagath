@@ -1,0 +1,205 @@
+/* ============================================================
+   ADVANCED LIGHTING
+   - Key light (cursor core)
+   - Fill / bounce (soft lag layer)
+   - Specular highlight on surfaces
+   - Rim light on card edges
+   - Ambient occlusion vignette
+   ============================================================ */
+
+/* --- Key light (direct) ---
+   Tight warm beam, soft-light blend like a practical lamp */
+#interactiveLight {
+  position: fixed;
+  width: 560px;
+  height: 560px;
+  margin-left: -280px;
+  margin-top: -280px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 42% 38%,
+    rgba(255, 252, 240, 0.32) 0%,
+    rgba(255, 236, 180, 0.18) 10%,
+    rgba(224, 177, 42, 0.1) 26%,
+    rgba(160, 90, 30, 0.045) 48%,
+    transparent 72%
+  );
+  transition: opacity 0.5s ease;
+  will-change: transform, opacity;
+  mix-blend-mode: soft-light;
+  filter: blur(1.5px);
+}
+
+/* --- Fill / bounce light ---
+   Larger, cooler-lagged warm fill for realism */
+#interactiveLightSoft {
+  position: fixed;
+  width: 980px;
+  height: 980px;
+  margin-left: -490px;
+  margin-top: -490px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    rgba(224, 177, 42, 0.09) 0%,
+    rgba(120, 55, 20, 0.04) 42%,
+    transparent 72%
+  );
+  transition: opacity 0.65s ease;
+  will-change: transform, opacity;
+  mix-blend-mode: screen;
+  filter: blur(22px);
+}
+
+#interactiveLight.is-on { opacity: 1; }
+#interactiveLightSoft.is-on { opacity: 1; }
+
+/* Scene ambient occlusion — edges darker like real rooms */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 85% 80% at 50% 45%, transparent 35%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+/* Surface materials */
+.feature-card,
+.special-card,
+.cater-card,
+.review-card,
+.contact-card,
+.menu-shell,
+.booking-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Specular + diffuse under cursor */
+.feature-card::after,
+.special-card::after,
+.cater-card::after,
+.review-card::after,
+.contact-card::after,
+.menu-shell::after,
+.booking-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+  background:
+    /* specular hot-spot */
+    radial-gradient(
+      160px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 245, 0.22) 0%,
+      rgba(255, 230, 160, 0.08) 35%,
+      transparent 65%
+    ),
+    /* diffuse wash */
+    radial-gradient(
+      420px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(245, 208, 106, 0.1) 0%,
+      transparent 70%
+    );
+  mix-blend-mode: soft-light;
+}
+
+.feature-card:hover::after,
+.special-card:hover::after,
+.cater-card:hover::after,
+.review-card:hover::after,
+.contact-card:hover::after,
+.menu-shell:hover::after,
+.booking-card:hover::after {
+  opacity: 1;
+}
+
+/* Rim light — edge catches light opposite to contact */
+.feature-card::before,
+.special-card::before,
+.cater-card::before,
+.review-card::before,
+.contact-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 220, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    inset 1px 0 0 rgba(245, 208, 106, 0.06),
+    inset -1px 0 0 rgba(0, 0, 0, 0.12);
+}
+
+.feature-card:hover::before,
+.special-card:hover::before,
+.cater-card:hover::before,
+.review-card:hover::before,
+.contact-card:hover::before {
+  opacity: 1;
+}
+
+.feature-card:hover,
+.special-card:hover,
+.cater-card:hover,
+.review-card:hover,
+.contact-card:hover {
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(245, 208, 106, 0.14),
+    0 0 28px rgba(224, 177, 42, 0.08) !important;
+}
+
+/* Buttons: small specular sheen */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -30%;
+  width: 50%;
+  height: 180%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%) rotate(12deg);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+.btn-primary:hover::after {
+  transform: translateX(280%) rotate(12deg);
+}
+
+@media (hover: none), (pointer: coarse) {
+  #interactiveLight,
+  #interactiveLightSoft { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #interactiveLight,
+  #interactiveLightSoft { display: none !important; }
+  .btn-primary::after { display: none !important; }
+}
