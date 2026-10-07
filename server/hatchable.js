@@ -1,6 +1,6 @@
 // Local stand-in for the platform-provided "hatchable" package.
 // server/resolve-hooks.js maps the bare specifier "hatchable" to this file so
-// the unmodified API handlers in swagath-v79/api can run in the preview.
+// the unmodified API handlers in api/ can run in the preview.
 
 import fs from "node:fs";
 import path from "node:path";

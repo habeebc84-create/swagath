@@ -1,9 +1,9 @@
 // Local dev/preview server for the Swagath Hatchable project.
 //
-// - Serves the static site from swagath-v79/public
-// - Routes /api/* to the project's unmodified API handlers in swagath-v79/api
+// - Serves the static site from public/
+// - Routes /api/* to the project's unmodified API handlers in api/
 // - Redirects the platform-only "hatchable" import to server/hatchable.js
-//   (JSON-backed db seeded from swagath-v79/migrations + local file storage)
+//   (JSON-backed db seeded from migrations/ + local file storage)
 //
 // Runs with: npm run dev   (binds 0.0.0.0, honours $PORT)
 
@@ -17,8 +17,8 @@ register("./resolve-hooks.js", import.meta.url);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const PUBLIC_DIR = path.join(ROOT, "swagath-v79", "public");
-const API_DIR = path.join(ROOT, "swagath-v79", "api");
+const PUBLIC_DIR = path.join(ROOT, "public");
+const API_DIR = path.join(ROOT, "api");
 const MAX_BODY = 16 * 1024 * 1024;
 
 const MIME = {

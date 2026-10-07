@@ -3,7 +3,7 @@
 // The site is a Hatchable project: its API handlers run on Hatchable's runtime
 // (Postgres via `db.query` from the "hatchable" package). To run the project
 // locally/preview we back those calls with a small JSON store that understands
-// exactly the SQL statements used in swagath-v79/api, and we seed it from the
+// exactly the SQL statements used in api/, and we seed it from the
 // project's own migration files so menu/gallery content matches production.
 
 import fs from "node:fs";
@@ -13,8 +13,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, "..");
-export const APP_DIR = path.join(ROOT, "swagath-v79");
-export const MIGRATIONS_DIR = path.join(APP_DIR, "migrations");
+export const MIGRATIONS_DIR = path.join(ROOT, "migrations");
 
 const DATA_DIR = path.join(ROOT, ".data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
