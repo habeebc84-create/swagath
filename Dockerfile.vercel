@@ -1,8 +1,22 @@
-# Vercel container entrypoint (see vercel.json -> services.*.entrypoint).
+# Vercel container entrypoint.
+#
+# vercel.json pins "framework": "container", so Vercel builds this image and
+# routes all traffic to it — no `services` / `rewrites` block needed (those are
+# only for multi-service projects) and no dashboard framework change required.
+# Pinning the preset also stops Vercel from applying a Node framework build to
+# api/*.js, which would try to compile those Hatchable handlers as Vercel
+# Functions and fail on their `import "hatchable"`.
+#
 # The app has zero runtime npm dependencies — everything is Node builtins.
 FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production PORT=80
-COPY --chown=node:node . .
-USER node
+COPY . .
+
+# Deliberately runs as root: Vercel's container router targets $PORT (default
+# 80), and a non-root process cannot bind a privileged port — it fails with
+# EACCES and the function dies on boot. Vercel's own container examples run as
+# root too. The image is only ever run inside Vercel's isolated function sandbox.
+# Running as root also lets the app create its .data/ runtime store in /app.
+EXPOSE 80
 CMD ["node", "server/index.js"]
