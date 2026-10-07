@@ -20,16 +20,25 @@ body {
   background-attachment: fixed !important;
 }
 
-/* Mesh atmosphere */
+/* Mesh atmosphere — two extra pools so the glow reads across the page,
+   breathing slowly instead of sitting flat. */
 .mesh {
   position: fixed !important;
   inset: 0 !important;
   z-index: 0 !important;
   pointer-events: none !important;
   background:
-    radial-gradient(ellipse 55% 40% at 25% 15%, rgba(245, 208, 106, 0.1), transparent 65%),
-    radial-gradient(ellipse 50% 45% at 80% 70%, rgba(160, 60, 20, 0.08), transparent 60%) !important;
+    radial-gradient(ellipse 55% 40% at 25% 15%, rgba(245, 208, 106, 0.14), transparent 65%),
+    radial-gradient(ellipse 50% 45% at 80% 70%, rgba(160, 60, 20, 0.11), transparent 60%),
+    radial-gradient(ellipse 40% 35% at 65% 20%, rgba(224, 177, 42, 0.1), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 15% 85%, rgba(196, 60, 20, 0.09), transparent 60%) !important;
   opacity: 1 !important;
+  animation: meshGlow 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes meshGlow {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to   { transform: scale(1.07) translate3d(-1.5%, 1%, 0); }
 }
 
 /* Soft vignette */
@@ -42,9 +51,9 @@ body::after {
   background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
 }
 
-/* Hide old particle/star layers */
+/* Hide old particle/star layers.
+   .light-orb is deliberately NOT hidden any more — it is the glow layer. */
 .stars-layer,
-.light-orb,
 .depth-layer {
   display: none !important;
 }
@@ -100,6 +109,57 @@ body::after {
   position: relative;
   z-index: 1;
   background: linear-gradient(180deg, #0a0705, #040302) !important;
+}
+
+/* --- Background glow lighting ------------------------------------------------
+   Three fixed orbs behind every section. Soft radial gradients instead of
+   filter:blur() so they cost nothing to paint. site-fix.css already pins them
+   to z-index 0 / pointer-events none. */
+.light-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.9;
+  animation: floatOrb 16s ease-in-out infinite;
+  will-change: transform;
+}
+.light-orb-1 {
+  width: 46vw;
+  height: 46vw;
+  min-width: 320px;
+  min-height: 320px;
+  top: -8vh;
+  left: -10vw;
+  background: radial-gradient(circle, rgba(224, 177, 42, 0.32), rgba(224, 177, 42, 0.07) 45%, transparent 70%);
+}
+.light-orb-2 {
+  width: 40vw;
+  height: 40vw;
+  min-width: 280px;
+  min-height: 280px;
+  top: 38vh;
+  right: -8vw;
+  background: radial-gradient(circle, rgba(196, 60, 20, 0.28), rgba(196, 60, 20, 0.06) 45%, transparent 70%);
+  animation-duration: 21s;
+  animation-delay: -6s;
+}
+.light-orb-3 {
+  width: 36vw;
+  height: 36vw;
+  min-width: 260px;
+  min-height: 260px;
+  bottom: -6vh;
+  left: 26vw;
+  background: radial-gradient(circle, rgba(245, 208, 106, 0.24), rgba(245, 208, 106, 0.05) 45%, transparent 70%);
+  animation-duration: 25s;
+  animation-delay: -11s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mesh,
+  .light-orb {
+    animation: none !important;
+  }
 }
 
 .section > .container,

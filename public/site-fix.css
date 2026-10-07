@@ -17,12 +17,34 @@
 }
 .habeeb-popup { z-index: 2147483646 !important; }
 
-/* Readable sections over effects */
+/* Scroll progress — the JS writes style.width, but this element had no CSS at
+   all so it rendered as a zero-height block and was never visible. */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  z-index: 1001; /* above the header (1000), below the float buttons (5000) */
+  pointer-events: none;
+  background: linear-gradient(90deg, #f5d06a, #e0b12a 55%, #c2452c);
+  box-shadow: 0 0 12px rgba(224, 177, 42, 0.6);
+  transition: width 0.1s linear;
+}
+
+/* Readable sections over effects — the corner gradients let the glow show
+   through without touching the base colours or their alpha. */
 .section {
-  background: rgba(12, 9, 7, 0.88) !important;
+  background:
+    radial-gradient(ellipse 65% 50% at 12% 0%, rgba(224, 177, 42, 0.08), transparent 62%),
+    radial-gradient(ellipse 60% 45% at 92% 100%, rgba(180, 60, 20, 0.09), transparent 60%),
+    rgba(12, 9, 7, 0.88) !important;
 }
 .about, .gallery, .booking, .catering, .specials, .menu-section, .reviews, .faq {
-  background: rgba(14, 10, 8, 0.9) !important;
+  background:
+    radial-gradient(ellipse 60% 48% at 88% 4%, rgba(245, 208, 106, 0.07), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 8% 96%, rgba(196, 60, 20, 0.08), transparent 60%),
+    rgba(14, 10, 8, 0.9) !important;
 }
 
 /* Images don't break layout */

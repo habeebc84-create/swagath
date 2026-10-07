@@ -25,6 +25,7 @@
   var speed = 0;
   var on = false;
   var raf = 0;
+  var idleTimer = 0;
 
   function paint() {
     /* Key light — responsive */
@@ -69,6 +70,27 @@
     on = false;
     key.classList.remove('is-on');
     fill.classList.remove('is-on');
+    /* let the 0.5s/0.65s opacity fades finish, then idle the rAF loop */
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () {
+      if (!on && raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    }, 900);
+  });
+
+  /* stop burning frames while the tab is hidden; resume when lit again */
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      clearTimeout(idleTimer);
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    } else if (on && !raf) {
+      paint();
+    }
   });
 
   var sel = '.feature-card,.special-card,.cater-card,.review-card,.contact-card,.menu-shell,.booking-card';

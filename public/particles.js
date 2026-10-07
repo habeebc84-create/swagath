@@ -1,9 +1,16 @@
-/* Same particle system as admin dashboard */
+/* Same particle system as admin dashboard.
+   Respects prefers-reduced-motion and pauses when the tab is hidden. */
 (function () {
   var canvas = document.getElementById('particles');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
   if (!ctx) return;
+
+  var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motionQuery.matches) {
+    canvas.style.display = 'none';
+    return;
+  }
 
   canvas.style.display = 'block';
   canvas.style.position = 'fixed';
@@ -32,6 +39,9 @@
     });
   }
 
+  var raf = 0;
+  var running = false;
+
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     parts.forEach(function (p) {
@@ -44,7 +54,37 @@
       ctx.fillStyle = 'rgba(245,208,106,' + p.a + ')';
       ctx.fill();
     });
-    requestAnimationFrame(draw);
+    raf = requestAnimationFrame(draw);
   }
-  draw();
+
+  function start() {
+    if (running || document.hidden || motionQuery.matches) return;
+    running = true;
+    raf = requestAnimationFrame(draw);
+  }
+
+  function stop() {
+    running = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) stop();
+    else start();
+  });
+
+  if (typeof motionQuery.addEventListener === 'function') {
+    motionQuery.addEventListener('change', function (e) {
+      if (e.matches) {
+        stop();
+        canvas.style.display = 'none';
+      } else {
+        canvas.style.display = 'block';
+        start();
+      }
+    });
+  }
+
+  start();
 })();

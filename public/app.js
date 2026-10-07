@@ -191,6 +191,11 @@
     });
   }, { passive: true });
 
+  /* Deep-link loads (e.g. /#contact) start already scrolled but never fire a
+     scroll event, so the header, back-to-top and progress bar would all stay
+     in their initial state until the user moves. Seed them once. */
+  window.dispatchEvent(new Event('scroll'));
+
   var API = (window.__HATCHABLE__ && window.__HATCHABLE__.api) || '/api';
 
   (function loadMenu() {
