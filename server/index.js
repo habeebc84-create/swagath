@@ -243,7 +243,9 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-const PORT = Number(process.env.PORT) || 3000;
+// Vercel routes containers to $PORT with a default of 80; the Freebuff
+// preview uses 3000 when it does not inject one.
+const PORT = Number(process.env.PORT) || (process.env.VERCEL ? 80 : 3000);
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Swagath site serving on http://0.0.0.0:${PORT}`);
 });
