@@ -72,6 +72,13 @@ function serveStatic(pathname, req, res) {
   let target = file;
   if (fs.existsSync(target) && fs.statSync(target).isDirectory()) target = path.join(target, "index.html");
 
+  // The pages ask for /swagath-logo.png. Drop the real logo image at
+  // public/swagath-logo.png and it is served as-is; until that file exists we
+  // answer with the SVG recreation instead of a 404 so the emblem always renders.
+  if (rel === "swagath-logo.png" && (!fs.existsSync(target) || !fs.statSync(target).isFile())) {
+    target = path.join(PUBLIC_DIR, "swagath-logo.svg");
+  }
+
   if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
     res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
     res.end("<h1>404</h1><p>Not found</p>");
@@ -142,6 +149,11 @@ function createApiRes(nodeRes) {
       return api;
     },
     json(obj) {
+      // JSON bodies must declare their type; without this `finish()` falls back
+      // to application/octet-stream for every API response.
+      if (!state.headers["Content-Type"]) {
+        state.headers["Content-Type"] = "application/json; charset=utf-8";
+      }
       finish(Buffer.from(JSON.stringify(obj)));
       return api;
     },

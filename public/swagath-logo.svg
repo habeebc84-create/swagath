@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Swagath Restaurant">
+  <defs>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbe9a8"/>
+      <stop offset="0.5" stop-color="#e0b12a"/>
+      <stop offset="1" stop-color="#8a5e07"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf1bc"/>
+      <stop offset="0.5" stop-color="#e6bb3a"/>
+      <stop offset="1" stop-color="#9a6b08"/>
+    </linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf5cc"/>
+      <stop offset="0.5" stop-color="#f0cd57"/>
+      <stop offset="1" stop-color="#b8860b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- black medallion -->
+  <circle cx="256" cy="256" r="253" fill="#0a0806"/>
+  <circle cx="256" cy="256" r="245" fill="none" stroke="url(#ring)" stroke-width="7"/>
+  <circle cx="256" cy="256" r="231" fill="none" stroke="#d9a92b" stroke-width="2" opacity="0.7"/>
+
+  <!-- chef hat -->
+  <g fill="url(#gold)">
+    <circle cx="256" cy="62" r="25"/>
+    <circle cx="227" cy="76" r="20"/>
+    <circle cx="285" cy="76" r="20"/>
+    <path d="M233 88 h46 v16 a10 10 0 0 1 -10 10 h-26 a10 10 0 0 1 -10 -10 z"/>
+  </g>
+
+  <!-- steam -->
+  <path d="M243 148 c-9 -10 6 -17 -3 -27 M269 148 c9 -10 -6 -17 3 -27 M256 140 c-9 -12 6 -19 -3 -29"
+        fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- fork (left) -->
+  <g fill="url(#gold)">
+    <rect x="147" y="140" width="5" height="30" rx="2.5"/>
+    <rect x="156" y="140" width="5" height="30" rx="2.5"/>
+    <rect x="165" y="140" width="5" height="30" rx="2.5"/>
+    <path d="M146 168 h25 a6 6 0 0 1 6 6 v4 a8 8 0 0 1 -8 8 h-1 v44 a4 4 0 0 1 -8 0 v-44 h-1 a8 8 0 0 1 -8 -8 v-4 a6 6 0 0 1 6 -6 z"/>
+  </g>
+
+  <!-- spoon (right) -->
+  <g fill="url(#gold)">
+    <ellipse cx="357" cy="158" rx="13" ry="19"/>
+    <rect x="353" y="176" width="8" height="54" rx="4"/>
+  </g>
+
+  <!-- cloche -->
+  <circle cx="256" cy="163" r="6" fill="url(#gold)"/>
+  <path d="M205 216 a51 51 0 0 1 102 0 z" fill="url(#gold)"/>
+  <rect x="193" y="216" width="126" height="10" rx="5" fill="url(#gold)"/>
+
+  <!-- green leaves -->
+  <g fill="#4a7c2f">
+    <path d="M186 232 q16 -16 34 -8 q-6 20 -34 8 z" transform="rotate(-14 203 228)"/>
+    <path d="M326 232 q-16 -16 -34 -8 q6 20 34 8 z" transform="rotate(14 309 228)"/>
+  </g>
+
+  <!-- red ribbons -->
+  <path d="M132 252 q124 -26 248 0" fill="none" stroke="#93281b" stroke-width="7" stroke-linecap="round"/>
+  <path d="M150 262 q106 -20 212 0" fill="none" stroke="#c2452c" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+
+  <!-- wordmark -->
+  <text x="256" y="342" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-weight="700"
+        font-size="94" letter-spacing="3" fill="url(#word)">SWAGATH</text>
+
+  <!-- red swoosh under wordmark -->
+  <path d="M146 362 q110 24 220 0" fill="none" stroke="#93281b" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- RESTAURANT lockup -->
+  <rect x="88" y="392" width="56" height="3" rx="1.5" fill="url(#gold)"/>
+  <rect x="368" y="392" width="56" height="3" rx="1.5" fill="url(#gold)"/>
+  <text x="258" y="402" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="27" letter-spacing="11" fill="#f5eddc">RESTAURANT</text>
+
+  <!-- bottom leaf trio -->
+  <g fill="#4a7c2f">
+    <path d="M256 456 q-13 -18 -3 -34 q14 12 3 34 z"/>
+    <path d="M244 462 q-18 -8 -30 4 q16 12 30 -4 z" transform="rotate(18 229 462)"/>
+    <path d="M268 462 q18 -8 30 4 q-16 12 -30 -4 z" transform="rotate(-18 283 462)"/>
+  </g>
+</svg>
