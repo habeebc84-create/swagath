@@ -1,0 +1,15 @@
+{
+  "name": "swagath-restaurant-site",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}
