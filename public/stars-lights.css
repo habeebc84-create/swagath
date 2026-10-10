@@ -41,21 +41,57 @@ body {
   to   { transform: scale(1.07) translate3d(-1.5%, 1%, 0); }
 }
 
-/* Soft vignette */
+/* Soft vignette (lightened — it previously crushed the ambient glow) */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 40%, rgba(0, 0, 0, 0.45) 100%);
+  background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.32) 100%);
 }
 
-/* Hide old particle/star layers.
-   .light-orb is deliberately NOT hidden any more — it is the glow layer. */
-.stars-layer,
+/* Dark starfield / depth layers — re-enabled as decoration now that the
+   sections above them are translucent (they were previously display:none,
+   which wasted the DOM nodes). Kept very subtle so text stays readable. */
+.stars-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1.5px 1.5px at 22% 34%, rgba(245, 208, 106, 0.9), transparent 100%),
+    radial-gradient(1px 1px at 68% 18%, rgba(245, 208, 106, 0.7), transparent 100%),
+    radial-gradient(1.5px 1.5px at 81% 66%, rgba(255, 255, 255, 0.65), transparent 100%),
+    radial-gradient(1px 1px at 44% 82%, rgba(245, 208, 106, 0.6), transparent 100%),
+    radial-gradient(1.2px 1.2px at 12% 74%, rgba(255, 245, 220, 0.5), transparent 100%),
+    radial-gradient(1px 1px at 91% 38%, rgba(245, 208, 106, 0.55), transparent 100%);
+  background-repeat: repeat;
+  background-size: 340px 340px, 420px 420px, 500px 500px, 380px 380px, 460px 460px, 540px 540px;
+  animation: starDrift 90s linear infinite;
+  will-change: background-position;
+}
+.stars-layer.stars-b {
+  animation-duration: 140s;
+  animation-direction: reverse;
+  opacity: 0.35;
+}
+@keyframes starDrift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 340px -170px, -420px 210px, 250px 500px, -190px -380px, 230px 460px, -270px 270px; }
+}
 .depth-layer {
-  display: none !important;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.depth-layer.depth-1 {
+  background: radial-gradient(ellipse 34% 26% at 18% 22%, rgba(224, 177, 42, 0.05), transparent 70%);
+}
+.depth-layer.depth-2 {
+  background: radial-gradient(ellipse 30% 24% at 84% 60%, rgba(196, 60, 20, 0.05), transparent 70%);
 }
 
 /* Elegant static light pools (no animation lag) */
@@ -82,12 +118,16 @@ body::after {
   filter: blur(50px);
 }
 
-/* Sections solid enough for readable text */
+/* Sections: let the ambient background breathe through.
+   Previously these were nearly opaque (0.88–0.9 alpha) which swallowed
+   every animated layer below them. Now they are translucent panes over
+   the fixed glow + particle canvas, with a slightly stronger gradient
+   coming from the top for text contrast. */
 .section {
   position: relative;
   z-index: 1;
-  background: rgba(12, 9, 7, 0.88) !important;
-  border-top: 1px solid rgba(224, 177, 42, 0.06);
+  background:
+    linear-gradient(180deg, rgba(8, 5, 3, 0.9) 0%, rgba(8, 5, 3, 0.72) 22%, rgba(8, 5, 3, 0.6) 45%, rgba(8, 5, 3, 0.72) 78%, rgba(8, 5, 3, 0.9) 100%) !important;
 }
 .section:nth-of-type(even),
 .about,
@@ -95,7 +135,8 @@ body::after {
 .gallery,
 .faq,
 .booking {
-  background: rgba(14, 10, 8, 0.9) !important;
+  background:
+    linear-gradient(180deg, rgba(10, 7, 5, 0.92) 0%, rgba(10, 7, 5, 0.76) 20%, rgba(10, 7, 5, 0.64) 50%, rgba(10, 7, 5, 0.76) 80%, rgba(10, 7, 5, 0.92) 100%) !important;
 }
 
 .hero {
@@ -119,7 +160,7 @@ body::after {
   position: fixed;
   border-radius: 50%;
   pointer-events: none;
-  opacity: 0.9;
+  opacity: 0.7;
   animation: floatOrb 16s ease-in-out infinite;
   will-change: transform;
 }

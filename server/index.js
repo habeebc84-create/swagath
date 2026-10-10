@@ -36,6 +36,7 @@ const MIME = {
   ".ico": "image/x-icon",
   ".txt": "text/plain; charset=utf-8",
   ".xml": "application/xml; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
   ".woff": "font/woff",
   ".woff2": "font/woff2",
   ".mp4": "video/mp4",

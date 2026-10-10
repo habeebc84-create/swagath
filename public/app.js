@@ -116,12 +116,15 @@
       });
     }, { threshold: 0.01, rootMargin: '40px 0px 0px 0px' });
     document.querySelectorAll('.reveal').forEach(function (el) { obs.observe(el); });
-    setTimeout(revealAll, 1200);
+    /* Progressive safety nets: reveal in staggered waves so content can never
+       be stuck invisible (gallery/specials lasted >1.2s before on slow loads). */
+    setTimeout(revealAll, 500);
+    setTimeout(revealAll, 1500);
   } else {
     revealAll();
   }
   window.addEventListener('load', function () {
-    setTimeout(revealAll, 400);
+    setTimeout(revealAll, 300);
   });
 
   var backTop = document.getElementById('backTop');
