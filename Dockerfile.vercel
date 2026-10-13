@@ -4,8 +4,11 @@
 # routes all traffic to it — no `services` / `rewrites` block needed (those are
 # only for multi-service projects) and no dashboard framework change required.
 # Pinning the preset also stops Vercel from applying a Node framework build to
-# api/*.js, which would try to compile those Hatchable handlers as Vercel
-# Functions and fail on their `import "hatchable"`.
+# the API handlers, which would try to compile them as Vercel Functions and
+# fail on their `import "hatchable"`. The handlers live in server/api/ (not a
+# repo-root api/ dir) so Vercel's function detection doesn't count the 22
+# files against the Hobby plan's 12-function deployment limit — the container
+# serves every /api/* route itself.
 #
 # The app has zero runtime npm dependencies — everything is Node builtins.
 FROM node:22-alpine

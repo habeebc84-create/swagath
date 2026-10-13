@@ -1,7 +1,9 @@
 // Local dev/preview server for the Swagath Hatchable project.
 //
 // - Serves the static site from public/
-// - Routes /api/* to the project's unmodified API handlers in api/
+// - Routes /api/* to the project's API handlers in server/api/ (kept out of
+//   the repo-root api/ dir so Vercel stops counting them as Serverless
+//   Functions — the container serves every route itself)
 // - Redirects the platform-only "hatchable" import to server/hatchable.js
 //   (JSON-backed db seeded from migrations/ + local file storage)
 //
@@ -18,7 +20,7 @@ register("./resolve-hooks.js", import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.join(ROOT, "public");
-const API_DIR = path.join(ROOT, "api");
+const API_DIR = path.join(ROOT, "server", "api");
 const MAX_BODY = 16 * 1024 * 1024;
 
 const MIME = {
