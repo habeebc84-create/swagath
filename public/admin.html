@@ -136,8 +136,18 @@
     .brand-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
     .brand-actions button { padding: 0.55rem 1rem; font-size: 0.8rem; }
     .brand-state { font-size: 0.75rem; color: var(--muted); margin-top: 0.6rem; min-height: 1.1em; }
+
+    /* HOME HERO panel */
+    .hero-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; align-items: end; }
+    .hero-form input[type=url] { width: 100%; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .hero-actions button { padding: 0.55rem 1rem; font-size: 0.8rem; }
+    .hero-form input[type=file] { margin-bottom: 0.75rem; }
+    .hero-preview { border: 1px solid var(--border); border-radius: 14px; padding: 0.75rem; background: rgba(255,255,255,0.03); min-height: 120px; display: flex; align-items: center; justify-content: center; }
+    .hero-preview img { max-width: 100%; max-height: 220px; object-fit: contain; }
     @media (max-width: 700px) {
-      .gal-form, .gal-form.g2, .gal-form.g3 { grid-template-columns: 1fr; }
+      .hero-form { grid-template-columns: 1fr; }
+      .hero-actions { flex-wrap: wrap; }
     }
 
     table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
@@ -279,6 +289,7 @@
       <button type="button" data-panel="p-book">Bookings</button>
       <button type="button" data-panel="p-cater">Catering</button>
       <button type="button" data-panel="p-brand">Logo</button>
+      <button type="button" data-panel="p-hero">Home Hero</button>
     </div>
 
     <!-- MENU -->
@@ -382,6 +393,25 @@
             <tbody id="caterBody"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- HOME HERO -->
+    <div class="panel" id="p-hero">
+      <div class="panel-card">
+        <h2>Home Hero — change the headline image</h2>
+        <p class="help">Add a new hero image (PNG, JPG or WebP · max 4 MB) or paste any image URL. The homepage hero replaces automatically.</p>
+        <div class="hero-form">
+          <input id="heroFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          <input id="heroUrl" type="url" placeholder="Or paste image URL (https://…)">
+        </div>
+        <div class="hero-actions">
+          <button class="btn-g" type="button" onclick="saveHeroFromDevice()">Upload from device</button>
+          <button class="btn-g" type="button" onclick="saveHeroFromUrl()">Add URL</button>
+          <button class="btn-x" type="button" onclick="resetHero()">Reset to default</button>
+        </div>
+        <p id="heroStatus" style="font-size:0.75rem;opacity:0.6;margin:0.35rem 0 1rem;min-height:1.1em;"></p>
+        <div class="hero-preview"><img id="heroPrev" src="" alt="Preview" style="max-width:100%;border-radius:12px;display:none;"></div>
       </div>
     </div>
 
@@ -776,6 +806,88 @@
         status.textContent = '';
         alert(err.message || 'Could not reset logo');
       }
+    }
+
+    /* ---------- HOME HERO ---------- */
+    async function saveHeroFromFile(file) {
+      var dataUrl = await fileToDataUrl(file);
+      var res = await authFetch('/upload/image', {
+        method: 'POST',
+        body: JSON.stringify({ data: dataUrl, filename: file.name, contentType: file.type })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Upload failed');
+      return data.url;
+    }
+
+    async function saveHeroFromUrl() {
+      var url = document.getElementById('heroUrl').value.trim();
+      if (!url) { alert('Paste an image URL'); return; }
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        alert('Paste a full URL (https://…)');
+        return;
+      }
+      try {
+        await authFetch('/gallery/create', {
+          method: 'POST',
+          body: JSON.stringify({ image_url: url, caption: 'Home hero', sort_order: 0, is_large: true })
+        });
+        document.getElementById('heroUrl').value = '';
+        showHeroStatus('URL image added — refresh the site to see it.', 'ok');
+      } catch (err) {
+        showHeroStatus(err.message || 'Could not add URL', 'err');
+      }
+    }
+
+    async function saveHeroFromDevice() {
+      var input = document.getElementById('heroFile');
+      var status = document.getElementById('heroStatus');
+      var files = input.files ? Array.prototype.slice.call(input.files) : [];
+      if (!files.length) { alert('Choose an image from your device first'); return; }
+      status.textContent = 'Uploading hero image…';
+      try {
+        var url = await saveHeroFromFile(files[0]);
+        var res = await authFetch('/hero-image', {
+          method: 'PUT',
+          body: JSON.stringify({ hero_key: decodeURIComponent((url.split('key=')[1] || '')) })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Could not save hero');
+        document.getElementById('heroFile').value = '';
+        showHeroStatus('Hero image updated — refresh the site to see it.', 'ok');
+      } catch (err) {
+        showHeroStatus(err.message || 'Could not save hero', 'err');
+      }
+    }
+
+    async function resetHero() {
+      var status = document.getElementById('heroStatus');
+      status.textContent = 'Restoring default hero…';
+      try {
+        var r = await authFetch('/hero-image', { method: 'PUT', body: JSON.stringify({ hero_key: '' }) });
+        var d = await r.json();
+        if (!r.ok || !d.success) throw new Error(d.error || 'Could not reset hero');
+        showHeroStatus('Default hero restored', 'ok');
+      } catch (err) {
+        showHeroStatus(err.message || 'Could not reset hero', 'err');
+      }
+    }
+
+    function showHeroStatus(msg, cls) {
+      var el = document.getElementById('heroStatus');
+      el.textContent = msg;
+      el.className = 'form-msg ' + (cls || '');
+    }
+
+    async function loadHero() {
+      try {
+        var r = await fetch(API + '/hero-image');
+        var d = r.ok ? await r.json() : null;
+        if (d && d.hero_key) {
+          document.getElementById('heroPrev').src = d.hero_url || '';
+          document.getElementById('heroPrev').style.display = 'block';
+        }
+      } catch (e) { /* ignore */ }
     }
 
     (async function () {
