@@ -17,6 +17,8 @@ import { register } from "node:module";
 
 register("./resolve-hooks.js", import.meta.url);
 
+import { storage } from "./hatchable.js";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.join(ROOT, "public");
@@ -54,7 +56,23 @@ function sendJson(res, code, obj) {
 
 /* --------------------------------- static --------------------------------- */
 
-function serveStatic(pathname, req, res) {
+// Active logo uploaded from the admin dashboard (api/branding/*).
+// Returns null whenever no custom logo is set, so the built-in file is used.
+async function customLogo() {
+  try {
+    const cfgFile = await storage.get("branding.json");
+    if (!cfgFile || !cfgFile.buffer) return null;
+    const cfg = JSON.parse(cfgFile.buffer.toString("utf8"));
+    if (!cfg || typeof cfg.logo !== "string" || !cfg.logo.startsWith("uploads/") || cfg.logo.includes("..")) return null;
+    const file = await storage.get(cfg.logo);
+    if (!file || !file.buffer || !file.buffer.length) return null;
+    return file;
+  } catch {
+    return null;
+  }
+}
+
+async function serveStatic(pathname, req, res) {
   let rel;
   try {
     rel = decodeURIComponent(pathname);
@@ -70,6 +88,26 @@ function serveStatic(pathname, req, res) {
   if (file !== PUBLIC_DIR && !file.startsWith(PUBLIC_DIR + path.sep)) {
     res.writeHead(403).end("Forbidden");
     return;
+  }
+
+  // Admin-uploaded logo wins over the file in public/ — every page that asks
+  // for /swagath-logo.png (header, footer, admin, og:image) gets the new one.
+  if (rel === "swagath-logo.png") {
+    const custom = await customLogo();
+    if (custom) {
+      const headers = {
+        "Content-Type": custom.contentType || "image/png",
+        "Content-Length": custom.buffer.length,
+        "Cache-Control": "no-cache"
+      };
+      if (req.method === "HEAD") {
+        res.writeHead(200, headers).end();
+        return;
+      }
+      res.writeHead(200, headers);
+      res.end(custom.buffer);
+      return;
+    }
   }
 
   let target = file;
@@ -249,7 +287,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === "/api" || url.pathname.startsWith("/api/")) {
       await handleApi(req, res, url);
     } else {
-      serveStatic(url.pathname, req, res);
+      await serveStatic(url.pathname, req, res);
     }
   } catch (err) {
     console.error("[server] request error:", err);

@@ -42,7 +42,10 @@
 
   /* Back to top already uses smooth; ensure native hash on load is smooth */
   if (location.hash) {
-    var hashTarget = document.querySelector(location.hash);
+    /* A malformed hash (e.g. /#123) is an invalid selector and would throw
+       out here, aborting the rest of app.js. Guard it. */
+    var hashTarget = null;
+    try { hashTarget = document.querySelector(location.hash); } catch (err) { hashTarget = null; }
     if (hashTarget) {
       setTimeout(function () {
         var headerH2 = (document.getElementById('header') && document.getElementById('header').offsetHeight) || 88;
@@ -101,31 +104,74 @@
     }
   })();
 
-  function revealAll() {
-    document.querySelectorAll('.reveal').forEach(function (el) {
-      el.classList.add('in');
+  /* Reveal one element, giving it a per-position stagger so cards cascade. */
+  function revealStage(el) {
+    if (!el || el.classList.contains('in')) return;
+    if (!el.classList.contains('section') && el.parentNode) {
+      var sibs = el.parentNode.querySelectorAll(':scope > .reveal');
+      for (var i = 0; i < sibs.length; i++) {
+        if (sibs[i] === el) {
+          el.style.setProperty('--stagger', (Math.min(i, 8) * 0.09 + 0.05).toFixed(2) + 's');
+          break;
+        }
+      }
+    }
+    el.classList.add('in');
+  }
+
+  var revealObs = null;
+  /* Register any .reveal nodes (including ones injected later by fetch) with
+     the observer so their entrance plays when they scroll into view. */
+  function observeReveals(root) {
+    var nodes = (root || document).querySelectorAll('.reveal:not(.in)');
+    if (!revealObs) { nodes.forEach(revealStage); return; }
+    nodes.forEach(function (el) {
+      if (el.dataset.revObs) return;
+      el.dataset.revObs = '1';
+      revealObs.observe(el);
     });
   }
+
+  /* Reveal only the stages the user can actually see, so each entrance plays the
+     moment it enters the viewport instead of firing invisibly at load. */
+  function revealVisible() {
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    document.querySelectorAll('.reveal:not(.in)').forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.top < vh - 40 && r.bottom > 0) revealStage(el);
+    });
+  }
+
+  /* Treat each content <section> as a reveal gate so section titles animate in
+     when the stage enters the viewport. The hero animates on its own (fade-up)
+     and is skipped. */
+  var stages = Array.prototype.slice.call(document.querySelectorAll('section.section')).filter(function (s) {
+    return !s.classList.contains('hero');
+  });
+  stages.forEach(function (s) { s.classList.add('reveal'); });
+
   if ('IntersectionObserver' in window) {
-    var obs = new IntersectionObserver(function (entries) {
+    /* threshold 0: a section can be many viewports tall (full menu), so a
+       ratio-based threshold would never fire and its text stayed invisible.
+       Any pixel entering the bottom band now triggers the entrance. */
+    revealObs = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (e.isIntersecting) {
-          e.target.classList.add('in');
-          obs.unobserve(e.target);
+          revealStage(e.target);
+          revealObs.unobserve(e.target);
         }
       });
-    }, { threshold: 0.01, rootMargin: '40px 0px 0px 0px' });
-    document.querySelectorAll('.reveal').forEach(function (el) { obs.observe(el); });
-    /* Progressive safety nets: reveal in staggered waves so content can never
-       be stuck invisible (gallery/specials lasted >1.2s before on slow loads). */
-    setTimeout(revealAll, 500);
-    setTimeout(revealAll, 1500);
-  } else {
-    revealAll();
+    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
   }
-  window.addEventListener('load', function () {
-    setTimeout(revealAll, 300);
-  });
+  observeReveals();
+  /* Reveal whatever is on screen now; off-screen stages wait for the observer
+     so their entrance animation plays when the user actually reaches them. */
+  revealVisible();
+  window.addEventListener('load', revealVisible);
+  window.addEventListener('resize', revealVisible, { passive: true });
+  setTimeout(revealVisible, 500);
+  setTimeout(revealVisible, 1500);
+  if (!('IntersectionObserver' in window)) revealVisible();
 
   var backTop = document.getElementById('backTop');
   if (backTop) {
@@ -223,13 +269,16 @@
               html += '<div class="menu-group">' + esc(it.group_name) + '</div>';
               lastGroup = it.group_name;
             }
-            html += '<div class="menu-row"><span class="name">' +
+            html += '<div class="menu-row reveal"><span class="name">' +
               esc(it.name) +
               '</span><span class="price">' +
               esc(it.price) +
               '</span></div>';
           });
           panel.innerHTML = html;
+          /* Rows were injected after setup — register them so each slides in
+             when its panel is shown / scrolled to. */
+          observeReveals(panel);
         });
       })
       .catch(function () {});
@@ -243,13 +292,15 @@
         if (!data || !data.items || !data.items.length) return;
         galleryGrid.innerHTML = data.items.map(function (item, i) {
           var large = item.is_large || i === 0;
-          var cls = large ? 'gal-item span-2 reveal in' : 'gal-item reveal in';
+          /* No 'in' class: the entrance plays when the tile scrolls into view. */
+          var cls = large ? 'gal-item span-2 reveal' : 'gal-item reveal';
           var src = String(item.image_url || '').replace(/"/g, '').replace(/</g, '');
           var cap = esc(item.caption || 'Gallery');
           return '<div class="' + cls + '">' +
             '<img src="' + src + '" alt="' + cap + '" loading="lazy" decoding="async" onerror="this.style.opacity=0.3">' +
             '<span class="gal-caption">' + cap + '</span></div>';
         }).join('');
+        observeReveals(galleryGrid);
       })
       .catch(function () {});
   }
@@ -327,4 +378,62 @@
       message: f.message.value.trim() || null
     };
   });
+
+  /* ---------- Motion polish: cascading reveals + light parallax ----------
+     Optional layer — wrapped so a failure here can never break the page. */
+  try {
+    (function () {
+      var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+      /* Stagger cards inside each grid so sections cascade in instead of
+         popping in as one block. Delay is cleared once it has been used so
+         hover transitions are never slowed down afterwards. */
+      var groups = ['.about-grid', '.specials-grid', '.cater-grid', '.reviews-grid', '.gallery-grid', '.faq-list', '.contact-grid'];
+      groups.forEach(function (sel) {
+        var wrap = document.querySelector(sel);
+        if (!wrap || reduce) return;
+        var i = 0;
+        wrap.querySelectorAll('.reveal').forEach(function (el) {
+          var delay = (i % 6) * 75;
+          i++;
+          if (!delay) return;
+          el.style.transitionDelay = delay + 'ms';
+          setTimeout(function () { el.style.transitionDelay = ''; }, delay + 1400);
+        });
+      });
+
+      if (reduce) return;
+
+      /* Compositor-only parallax: the depth light pools and the hero drift
+         with the scroll. These targets carry no CSS animation of their own,
+         so an inline transform can never fight one (transforms only, no
+         layout, one rAF per scroll frame). */
+      var depth = Array.prototype.slice.call(document.querySelectorAll('.depth-layer'));
+      var heroMedia = document.querySelector('.hero-media');
+      var heroContent = document.querySelector('.hero-content');
+      if (!depth.length && !heroMedia && !heroContent) return;
+
+      var ticking = false;
+      function paint() {
+        ticking = false;
+        var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+        var vh = window.innerHeight || 1;
+        var p = Math.min(1, y / vh);
+        for (var i = 0; i < depth.length; i++) {
+          depth[i].style.transform = 'translate3d(0,' + (y * (i + 1) * 0.05).toFixed(1) + 'px,0)';
+        }
+        if (heroMedia) heroMedia.style.transform = 'translate3d(0,' + (y * 0.18).toFixed(1) + 'px,0)';
+        if (heroContent) {
+          heroContent.style.transform = 'translate3d(0,' + (y * 0.28).toFixed(1) + 'px,0)';
+          heroContent.style.opacity = String(Math.max(0, 1 - p * 1.25));
+        }
+      }
+      window.addEventListener('scroll', function () {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(paint);
+      }, { passive: true });
+      paint();
+    })();
+  } catch (err) { /* motion polish is optional */ }
 })();

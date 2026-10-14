@@ -120,6 +120,22 @@
     .gal-form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 0.5rem; margin-bottom: 1rem; align-items: end; }
     .gal-form.g2 { grid-template-columns: 1.4fr 1fr auto; }
     .gal-form.g3 { grid-template-columns: 1fr auto; }
+
+    /* Branding / logo */
+    .brand-row { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: center; }
+    .brand-preview {
+      width: 132px; height: 132px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 50% 35%, #1c1410, #0a0706);
+      border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.4);
+    }
+    .brand-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .brand-controls { flex: 1; min-width: 240px; }
+    .brand-controls input[type=file] { margin-bottom: 0.75rem; }
+    .brand-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .brand-actions button { padding: 0.55rem 1rem; font-size: 0.8rem; }
+    .brand-state { font-size: 0.75rem; color: var(--muted); margin-top: 0.6rem; min-height: 1.1em; }
     @media (max-width: 700px) {
       .gal-form, .gal-form.g2, .gal-form.g3 { grid-template-columns: 1fr; }
     }
@@ -142,9 +158,80 @@
     .gal-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
     .scroll { overflow-x: auto; max-height: 480px; overflow-y: auto; }
     .foot-note { margin-top: 1.5rem; text-align: center; font-size: 0.72rem; color: var(--muted); }
+
+    /* Ambient background — glowing orbs + rising bubbles behind everything */
+    .ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .wrap { position: relative; z-index: 1; }
+    .ambient .orb {
+      position: absolute; border-radius: 50%; opacity: 0;
+      animation: orbBreathe 16s ease-in-out infinite alternate;
+      will-change: transform, opacity;
+    }
+    .ambient .orb.o1 {
+      width: 420px; height: 420px; top: -120px; left: -120px;
+      background: radial-gradient(circle, rgba(233,186,60,0.34), rgba(224,177,42,0.09) 45%, transparent 70%);
+    }
+    .ambient .orb.o2 {
+      width: 360px; height: 360px; bottom: -100px; right: -90px;
+      background: radial-gradient(circle, rgba(214,92,26,0.3), rgba(196,60,20,0.08) 45%, transparent 70%);
+      animation-delay: -7s; animation-duration: 21s;
+    }
+    .ambient .orb.o3 {
+      width: 300px; height: 300px; top: 42%; left: 55%;
+      background: radial-gradient(circle, rgba(250,218,128,0.24), rgba(245,208,106,0.06) 45%, transparent 70%);
+      animation-delay: -12s; animation-duration: 26s;
+    }
+    @keyframes orbBreathe {
+      from { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
+      to   { opacity: 0.95; transform: translate3d(30px, -34px, 0) scale(1.08); }
+    }
+    .ambient .bubbles-layer { position: absolute; inset: 0; }
+    .ambient .bubble {
+      position: absolute; bottom: -40px; left: var(--x, 50%);
+      width: var(--size, 10px); height: var(--size, 10px); border-radius: 50%;
+      background: radial-gradient(circle at 32% 28%,
+        rgba(255, 252, 236, 0.95), rgba(255, 228, 148, 0.6) 30%,
+        rgba(245, 208, 106, 0.26) 58%, rgba(245, 208, 106, 0.08) 78%, transparent 86%);
+      box-shadow: 0 0 8px rgba(255, 240, 190, 0.55), 0 0 22px rgba(245, 208, 106, 0.4), 0 0 48px rgba(224, 177, 42, 0.22);
+      border: 1px solid rgba(255, 236, 180, 0.3);
+      opacity: 0;
+      animation: bubbleRise var(--dur, 30s) linear var(--delay, 0s) infinite;
+      will-change: transform, opacity;
+    }
+    @keyframes bubbleRise {
+      0%   { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
+      6%   { opacity: 0.75; }
+      25%  { transform: translate3d(var(--drift, 20px), -26vh, 0) scale(0.95); opacity: 0.8; }
+      50%  { transform: translate3d(calc(var(--drift, 20px) * -0.6), -52vh, 0) scale(1); opacity: 0.75; }
+      75%  { transform: translate3d(var(--drift, 20px), -78vh, 0) scale(1.03); opacity: 0.6; }
+      94%  { opacity: 0; }
+      100% { transform: translate3d(calc(var(--drift, 20px) * -0.3), -108vh, 0) scale(1.06); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ambient { display: none !important; }
+    }
   </style>
 </head>
 <body>
+  <div class="ambient" aria-hidden="true">
+    <span class="orb o1"></span>
+    <span class="orb o2"></span>
+    <span class="orb o3"></span>
+    <div class="bubbles-layer">
+      <span class="bubble" style="--x:6%;--size:10px;--dur:34s;--delay:0s;--drift:26px"></span>
+      <span class="bubble" style="--x:15%;--size:16px;--dur:28s;--delay:-6s;--drift:-32px"></span>
+      <span class="bubble" style="--x:24%;--size:8px;--dur:38s;--delay:-12s;--drift:18px"></span>
+      <span class="bubble" style="--x:33%;--size:20px;--dur:25s;--delay:-3s;--drift:-22px"></span>
+      <span class="bubble" style="--x:43%;--size:12px;--dur:31s;--delay:-18s;--drift:30px"></span>
+      <span class="bubble" style="--x:52%;--size:9px;--dur:40s;--delay:-9s;--drift:-16px"></span>
+      <span class="bubble" style="--x:61%;--size:18px;--dur:27s;--delay:-22s;--drift:24px"></span>
+      <span class="bubble" style="--x:70%;--size:11px;--dur:33s;--delay:-4s;--drift:-28px"></span>
+      <span class="bubble" style="--x:78%;--size:14px;--dur:36s;--delay:-15s;--drift:20px"></span>
+      <span class="bubble" style="--x:86%;--size:7px;--dur:42s;--delay:-26s;--drift:-20px"></span>
+      <span class="bubble" style="--x:93%;--size:15px;--dur:29s;--delay:-10s;--drift:34px"></span>
+      <span class="bubble" style="--x:48%;--size:6px;--dur:45s;--delay:-30s;--drift:-14px"></span>
+    </div>
+  </div>
   <div id="loginScreen" class="wrap">
     <div class="login-box">
       <img src="/swagath-logo.png" alt="Swagath Restaurant" width="72" height="72" style="display:block;margin:0 auto 0.75rem;border-radius:50%;box-shadow:0 0 0 2px rgba(224,177,42,0.4),0 8px 24px rgba(0,0,0,0.45);">
@@ -191,6 +278,7 @@
       <button type="button" data-panel="p-gallery">Gallery</button>
       <button type="button" data-panel="p-book">Bookings</button>
       <button type="button" data-panel="p-cater">Catering</button>
+      <button type="button" data-panel="p-brand">Logo</button>
     </div>
 
     <!-- MENU -->
@@ -293,6 +381,27 @@
             <thead><tr><th>Name</th><th>Phone</th><th>Event</th><th>Guests</th><th>Date</th><th>Status</th><th></th></tr></thead>
             <tbody id="caterBody"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRANDING -->
+    <div class="panel" id="p-brand">
+      <div class="panel-card">
+        <h2>Logo — change from your device</h2>
+        <p class="help">Pick a logo image from your laptop/phone (PNG, JPG or WebP · max 4 MB). It replaces the emblem on the website header, footer, admin pages and the share image. Square images look best.</p>
+        <div class="brand-row">
+          <div class="brand-preview"><img id="brandPrev" src="/swagath-logo.png" alt="Current logo"></div>
+          <div class="brand-controls">
+            <label for="brandFile">New logo image</label>
+            <input id="brandFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml">
+            <div class="brand-actions">
+              <button class="btn-g" type="button" onclick="uploadLogo()">Upload &amp; apply</button>
+              <button class="btn-x" type="button" onclick="resetLogo()">Reset to default</button>
+            </div>
+            <p class="brand-state" id="brandState">Loading…</p>
+            <p class="brand-state" id="brandStatus"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -417,6 +526,7 @@
 
         await loadGal();
         await loadMenu();
+        loadBranding();
       } catch (e) {
         document.getElementById('bookBody').innerHTML = '<tr><td colspan="7" class="empty">Error loading</td></tr>';
       }
@@ -610,6 +720,62 @@
       if (!confirm('Delete this catering inquiry?')) return;
       await authFetch('/catering/delete', { method: 'POST', body: JSON.stringify({ id: id }) });
       load();
+    }
+
+    async function loadBranding() {
+      var state = document.getElementById('brandState');
+      try {
+        var r = await fetch(API + '/branding/get');
+        var d = r.ok ? await r.json() : {};
+        document.getElementById('brandPrev').src = d.url || '/swagath-logo.png';
+        state.textContent = d.logo ? 'Custom logo active · changes are live on the site' : 'Default logo active';
+      } catch (e) {
+        state.textContent = 'Default logo active';
+      }
+    }
+
+    async function uploadLogo() {
+      var input = document.getElementById('brandFile');
+      var status = document.getElementById('brandStatus');
+      var files = input.files ? Array.prototype.slice.call(input.files) : [];
+      if (!files.length) { alert('Choose a logo image from your device first'); return; }
+      status.textContent = 'Uploading logo…';
+      try {
+        var url = await uploadDeviceImage(files[0]);
+        var key = decodeURIComponent((url.split('key=')[1] || ''));
+        var r = await authFetch('/branding/update', {
+          method: 'POST',
+          body: JSON.stringify({ logo_key: key })
+        });
+        var d = await r.json();
+        if (!r.ok || !d.success) throw new Error(d.error || 'Could not apply logo');
+        document.getElementById('brandPrev').src = d.url || '/swagath-logo.png';
+        document.getElementById('brandState').textContent = 'Custom logo active · changes are live on the site';
+        status.textContent = 'Logo updated — refresh the site to see it everywhere';
+        input.value = '';
+      } catch (err) {
+        status.textContent = '';
+        alert(err.message || 'Could not upload logo');
+      }
+    }
+
+    async function resetLogo() {
+      var status = document.getElementById('brandStatus');
+      status.textContent = 'Restoring default…';
+      try {
+        var r = await authFetch('/branding/update', {
+          method: 'POST',
+          body: JSON.stringify({ logo_key: '' })
+        });
+        var d = await r.json();
+        if (!r.ok || !d.success) throw new Error(d.error || 'Could not reset logo');
+        document.getElementById('brandPrev').src = '/swagath-logo.png';
+        document.getElementById('brandState').textContent = 'Default logo active';
+        status.textContent = 'Default logo restored';
+      } catch (err) {
+        status.textContent = '';
+        alert(err.message || 'Could not reset logo');
+      }
     }
 
     (async function () {

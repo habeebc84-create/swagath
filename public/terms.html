@@ -45,10 +45,33 @@
       display: inline-block; margin-right: 1rem;
       font-size: 0.85rem; color: #e0b12a;
     }
+    /* Gentle entrance so the page animates in like the rest of the site */
+    .legal { animation: legalIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    @keyframes legalIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .legal { animation: none; } }
   </style>
 </head>
 <body>
   <div class="mesh" aria-hidden="true"></div>
+  <div class="stars-layer stars-a" aria-hidden="true"></div>
+  <div class="stars-layer stars-b" aria-hidden="true"></div>
+  <div class="light-orb light-orb-1" aria-hidden="true"></div>
+  <div class="light-orb light-orb-2" aria-hidden="true"></div>
+  <div class="light-orb light-orb-3" aria-hidden="true"></div>
+  <div class="bubbles-layer" aria-hidden="true">
+    <span class="bubble" style="--x:6%;--size:10px;--dur:34s;--delay:0s;--drift:26px"></span>
+    <span class="bubble" style="--x:15%;--size:16px;--dur:28s;--delay:-6s;--drift:-32px"></span>
+    <span class="bubble" style="--x:24%;--size:8px;--dur:38s;--delay:-12s;--drift:18px"></span>
+    <span class="bubble" style="--x:33%;--size:20px;--dur:25s;--delay:-3s;--drift:-22px"></span>
+    <span class="bubble" style="--x:43%;--size:12px;--dur:31s;--delay:-18s;--drift:30px"></span>
+    <span class="bubble" style="--x:52%;--size:9px;--dur:40s;--delay:-9s;--drift:-16px"></span>
+    <span class="bubble" style="--x:61%;--size:18px;--dur:27s;--delay:-22s;--drift:24px"></span>
+    <span class="bubble" style="--x:70%;--size:11px;--dur:33s;--delay:-4s;--drift:-28px"></span>
+    <span class="bubble" style="--x:78%;--size:14px;--dur:36s;--delay:-15s;--drift:20px"></span>
+    <span class="bubble" style="--x:86%;--size:7px;--dur:42s;--delay:-26s;--drift:-20px"></span>
+    <span class="bubble" style="--x:93%;--size:15px;--dur:29s;--delay:-10s;--drift:34px"></span>
+    <span class="bubble" style="--x:48%;--size:6px;--dur:45s;--delay:-30s;--drift:-14px"></span>
+  </div>
   <header class="header scrolled" id="header">
     <div class="container header-inner">
       <a href="/" class="logo" aria-label="Swagath Home">

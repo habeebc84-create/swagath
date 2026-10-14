@@ -45,12 +45,13 @@ section[id] {
   html, body { scroll-behavior: auto; }
 }
 body {
-  font-family: var(--font-b);
+  font-family: var(--font-b), system-ui, sans-serif;
   background: var(--bg);
   color: var(--cream);
-  line-height: 1.55;
+  line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 img {
   max-width: 100%;
@@ -65,22 +66,701 @@ img {
   object-fit: cover;
   object-position: center;
 }
+
+/* Strong base guardrails for look + typography.
+   These keep the page from ever falling back to a plain white canvas or a
+   generic system font if a later ruleset forgets to set a dark surface. */
+body {
+  color: var(--cream) !important;
+  background-color: #060403 !important;
+  line-height: 1.6 !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: var(--font-d), Georgia, 'Times New Roman', serif !important;
+}
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-b), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Sections keep their contemporary sans treatment so prices, labels and chips
+   stay crisp against the warmer serif hero / nav. */
+.section,
+.section *,
+.menu-section,
+.menu-section * {
+  font-family: var(--font-b), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* ============================================================
+   WARM LIGHTING LAYERS — background lighting fix
+   ============================================================ */
+
+/* Fixed warm wash behind everything — desktop pins; mobile scrolls. */
+body {
+  background:
+    radial-gradient(ellipse 120% 70% at 50% -10%, rgba(224, 177, 42, 0.22), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 0% 30%, rgba(196, 60, 20, 0.13), transparent 60%),
+    radial-gradient(ellipse 45% 50% at 100% 55%, rgba(200, 120, 30, 0.11), transparent 55%),
+    radial-gradient(ellipse 80% 40% at 50% 112%, rgba(60, 30, 15, 0.40), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 25, 15, 0.32), transparent 70%),
+    linear-gradient(180deg, #0b0705 0%, #050302 38%, #080604 100%);
+  background-attachment: fixed;
+}
+
+/* Mesh atmosphere — extra pools so the glow reads across the whole page
+   instead of sitting in one spot. It breathes slowly (scale + slight drift),
+   which is cheap on the compositor and never janks the text above it. */
+.mesh {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 55% 40% at 25% 15%, rgba(245, 208, 106, 0.2), transparent 65%),
+    radial-gradient(ellipse 50% 45% at 80% 70%, rgba(160, 60, 20, 0.16), transparent 60%),
+    radial-gradient(ellipse 40% 35% at 65% 20%, rgba(224, 177, 42, 0.15), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 15% 85%, rgba(196, 60, 20, 0.13), transparent 60%) !important;
+  opacity: 1 !important;
+  animation: meshGlow 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes meshGlow {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to   { transform: scale(1.07) translate3d(-1.4%, 1%, 0); }
+}
+
+/* Focal light pools baked onto the mesh — static soft gradients.
+   These add warm highlights at the corners without any blur animation cost,
+   so they read as candlelight rather than screen glare. */
+.mesh::before {
+  content: '';
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  top: -100px;
+  left: 15%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 177, 42, 0.16), transparent 70%);
+  filter: blur(40px);
+}
+.mesh::after {
+  content: '';
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  bottom: 5%;
+  right: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(160, 50, 15, 0.14), transparent 70%);
+  filter: blur(50px);
+}
+
+/* Soft vignette — light enough to frame the glow, not crush it. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.32) 100%);
+}
+
+/* Stars / depth decoration — appears only in the negative space, never behind
+   section text. Fixed at z-index 0 under the translucent section panes, so it
+   adds atmosphere to scrolling content without competing with the copy. */
+.stars-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1.5px 1.5px at 22% 34%, rgba(245, 208, 106, 0.9), transparent 100%),
+    radial-gradient(1px 1px at 68% 18%, rgba(245, 208, 106, 0.7), transparent 100%),
+    radial-gradient(1.5px 1.5px at 81% 66%, rgba(255, 255, 255, 0.65), transparent 100%),
+    radial-gradient(1px 1px at 44% 82%, rgba(245, 208, 106, 0.6), transparent 100%),
+    radial-gradient(1.2px 1.2px at 12% 74%, rgba(255, 245, 220, 0.5), transparent 100%),
+    radial-gradient(1px 1px at 91% 38%, rgba(245, 208, 106, 0.55), transparent 100%);
+  background-repeat: repeat;
+  background-size: 340px 340px, 420px 420px, 500px 500px, 380px 380px, 460px 460px, 540px 540px;
+  animation: starDrift 90s linear infinite;
+  will-change: background-position;
+}
+.stars-layer.stars-b {
+  animation-duration: 140s;
+  animation-direction: reverse;
+  opacity: 0.35;
+}
+@keyframes starDrift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 340px -170px, -420px 210px, 250px 500px, -190px -380px, 230px 460px, -270px 270px; }
+}
+
+/* Depth planes — soft gold / amber pools. */
+.depth-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.depth-layer.depth-1 {
+  background: radial-gradient(ellipse 34% 26% at 18% 22%, rgba(224, 177, 42, 0.05), transparent 70%);
+}
+.depth-layer.depth-2 {
+  background: radial-gradient(ellipse 30% 24% at 84% 60%, rgba(196, 60, 20, 0.05), transparent 70%);
+}
+
+/* Synchronized bubbles — one global layer, all bubbles share the same rise
+   timeline (per-bubble duration/delay/drift via custom properties), so the
+   drift feels like a single current flowing behind every section. */
+.bubbles-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bubble {
+  position: absolute;
+  bottom: -40px;
+  left: var(--x, 50%);
+  width: var(--size, 10px);
+  height: var(--size, 10px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255, 244, 200, 0.55), rgba(245, 208, 106, 0.16) 55%, rgba(245, 208, 106, 0.04) 78%, transparent 82%);
+  box-shadow: 0 0 12px rgba(245, 208, 106, 0.12);
+  opacity: 0;
+  animation: bubbleRise var(--dur, 30s) linear var(--delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+@keyframes bubbleRise {
+  0%   { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
+  6%   { opacity: 0.5; }
+  25%  { transform: translate3d(var(--drift, 20px), -26vh, 0) scale(0.95); }
+  50%  { transform: translate3d(calc(var(--drift, 20px) * -0.6), -52vh, 0) scale(1); }
+  75%  { transform: translate3d(var(--drift, 20px), -78vh, 0) scale(1.03); opacity: 0.42; }
+  94%  { opacity: 0; }
+  100% { transform: translate3d(calc(var(--drift, 20px) * -0.3), -108vh, 0) scale(1.06); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bubbles-layer { display: none !important; }
+}
+
+/* Independent global light orbs — three sources, each from a different
+   origin/duration/delay. The page feels alive instead of strobing from one
+   repeating light, and the orbs pass behind the content safely. */
+.light-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.72;
+  animation: floatOrbGlobal 17s ease-in-out infinite;
+  will-change: transform;
+}
+.light-orb-1 {
+  width: 42vw;
+  height: 42vw;
+  min-width: 300px;
+  min-height: 300px;
+  top: -5vh;
+  left: -14vw;
+  background: radial-gradient(circle, rgba(224, 177, 42, 0.34), rgba(224, 177, 42, 0.10) 45%, transparent 70%);
+}
+.light-orb-2 {
+  width: 38vw;
+  height: 38vw;
+  min-width: 260px;
+  min-height: 260px;
+  top: 42vh;
+  right: -10vw;
+  background: radial-gradient(circle, rgba(200, 80, 22, 0.28), rgba(200, 80, 22, 0.07) 45%, transparent 70%);
+  animation-duration: 23s;
+  animation-delay: -7s;
+}
+.light-orb-3 {
+  width: 32vw;
+  height: 32vw;
+  min-width: 230px;
+  min-height: 230px;
+  bottom: -4vh;
+  left: 28vw;
+  background: radial-gradient(circle, rgba(245, 208, 106, 0.28), rgba(245, 208, 106, 0.07) 45%, transparent 70%);
+  animation-duration: 27s;
+  animation-delay: -13s;
+}
+@keyframes floatOrbGlobal {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2.2%, -3.2%) scale(1.04); }
+}
+
+/* Sections: translucent panes over the fixed glow + canvas.
+   A slightly stronger gradient from the top keeps text high-contrast,
+   while the lowered mid-alpha lets the animated background breathe through */
+.section {
+  position: relative;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(8, 5, 3, 0.86) 0%, rgba(8, 5, 3, 0.6) 22%, rgba(8, 5, 3, 0.44) 45%, rgba(8, 5, 3, 0.6) 78%, rgba(8, 5, 3, 0.86) 100%) !important;
+}
+.section:nth-of-type(even),
+.about,
+.menu-section,
+.gallery,
+.faq,
+.booking {
+  background:
+    linear-gradient(180deg, rgba(10, 7, 5, 0.88) 0%, rgba(10, 7, 5, 0.64) 20%, rgba(10, 7, 5, 0.48) 50%, rgba(10, 7, 5, 0.64) 80%, rgba(10, 7, 5, 0.88) 100%) !important;
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+}
+.header {
+  z-index: 1000;
+}
+.footer {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(180deg, #0a0705, #040302) !important;
+}
+
+/* Containers sit above the lighting layers */
+.section > .container,
+.menu-section > .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Respect users who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .mesh,
+  .light-orb,
+  .stars-layer {
+    animation: none !important;
+    opacity: 0.3 !important;
+  }
+  .mesh {
+    opacity: 0.35 !important;
+  }
+  body {
+    background-image:
+      radial-gradient(ellipse 120% 70% at 50% -10%, rgba(224, 177, 42, 0.14), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 0% 30%, rgba(196, 60, 20, 0.08), transparent 60%),
+      radial-gradient(ellipse 45% 50% at 100% 55%, rgba(200, 120, 30, 0.07), transparent 55%),
+      radial-gradient(ellipse 80% 40% at 50% 112%, rgba(60, 30, 15, 0.25), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 25, 15, 0.22), transparent 70%),
+      linear-gradient(180deg, #0b0705 0%, #050302 38%, #080604 100%);
+  }
+}
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 
 .container { width: min(1140px, calc(100% - 2.5rem)); margin-inline: auto; }
 
-/* ========== MESH BG (hero only — sections use solid fills) ========== */
-.mesh {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(224,177,42,0.1), transparent),
-    radial-gradient(ellipse 60% 40% at 90% 20%, rgba(196,60,20,0.06), transparent);
-  opacity: 0.85;
-}
+/* ============================================================
+   WARM LIGHTING LAYERS — background lighting fix
+   ============================================================ */
 body {
-  background-color: #0a0706;
-  background-image: none;
+  /* Fixed warm wash behind everything (desktop sticks; mobile scrolls) */
+  background:
+    radial-gradient(ellipse 120% 70% at 50% -10%, rgba(224, 177, 42, 0.22), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 0% 30%, rgba(196, 60, 20, 0.13), transparent 60%),
+    radial-gradient(ellipse 45% 50% at 100% 55%, rgba(200, 120, 30, 0.11), transparent 55%),
+    radial-gradient(ellipse 80% 40% at 50% 112%, rgba(60, 30, 15, 0.40), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 25, 15, 0.32), transparent 70%),
+    linear-gradient(180deg, #0b0705 0%, #050302 38%, #080604 100%);
+  background-attachment: fixed;
+}
+
+/* Mesh atmosphere — two extra pools so the glow reads across the page,
+   breathing slowly instead of sitting flat. */
+.mesh {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 55% 40% at 25% 15%, rgba(245, 208, 106, 0.2), transparent 65%),
+    radial-gradient(ellipse 50% 45% at 80% 70%, rgba(160, 60, 20, 0.16), transparent 60%),
+    radial-gradient(ellipse 40% 35% at 65% 20%, rgba(224, 177, 42, 0.15), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 15% 85%, rgba(196, 60, 20, 0.13), transparent 60%) !important;
+  opacity: 1 !important;
+  animation: meshGlow 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes meshGlow {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to   { transform: scale(1.07) translate3d(-1.4%, 1%, 0); }
+}
+
+/* Soft vignette — kept light so it frames the glow without crushing it */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 75% at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.32) 100%);
+}
+
+/* Stars / depth decoration — only in the negative space, never behind text.
+   These live at z-index 0 and sit under the translucent section panes, so
+   they add depth to the page without competing with the content above them. */
+.stars-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1.5px 1.5px at 22% 34%, rgba(245, 208, 106, 0.9), transparent 100%),
+    radial-gradient(1px 1px at 68% 18%, rgba(245, 208, 106, 0.7), transparent 100%),
+    radial-gradient(1.5px 1.5px at 81% 66%, rgba(255, 255, 255, 0.65), transparent 100%),
+    radial-gradient(1px 1px at 44% 82%, rgba(245, 208, 106, 0.6), transparent 100%),
+    radial-gradient(1.2px 1.2px at 12% 74%, rgba(255, 245, 220, 0.5), transparent 100%),
+    radial-gradient(1px 1px at 91% 38%, rgba(245, 208, 106, 0.55), transparent 100%);
+  background-repeat: repeat;
+  background-size: 340px 340px, 420px 420px, 500px 500px, 380px 380px, 460px 460px, 540px 540px;
+  animation: starDrift 90s linear infinite;
+  will-change: background-position;
+}
+.stars-layer.stars-b {
+  animation-duration: 140s;
+  animation-direction: reverse;
+  opacity: 0.35;
+}
+@keyframes starDrift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 340px -170px, -420px 210px, 250px 500px, -190px -380px, 230px 460px, -270px 270px; }
+}
+.depth-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.depth-layer.depth-1 {
+  background: radial-gradient(ellipse 34% 26% at 18% 22%, rgba(224, 177, 42, 0.05), transparent 70%);
+}
+.depth-layer.depth-2 {
+  background: radial-gradient(ellipse 30% 24% at 84% 60%, rgba(196, 60, 20, 0.05), transparent 70%);
+}
+
+/* Static light pools on the mesh itself — soft radial gradients, no blur cost.
+   These add focal warmth at the corners without any animation lag. */
+.mesh::before {
+  content: '';
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  top: -100px;
+  left: 15%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 177, 42, 0.16), transparent 70%);
+  filter: blur(40px);
+}
+.mesh::after {
+  content: '';
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  bottom: 5%;
+  right: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(160, 50, 15, 0.14), transparent 70%);
+  filter: blur(50px);
+}
+
+/* Independent global light orbs — float slowly behind everything.
+   Three of them, each from a different origin/duration, so the page feels
+   alive rather than strobing from one repeating source. */
+.light-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.7;
+  animation: floatOrbGlobal 16s ease-in-out infinite;
+  will-change: transform;
+}
+.light-orb-1 {
+  width: 44vw;
+  height: 44vw;
+  min-width: 300px;
+  min-height: 300px;
+  top: -6vh;
+  left: -12vw;
+  background: radial-gradient(circle, rgba(224, 177, 42, 0.36), rgba(224, 177, 42, 0.10) 45%, transparent 70%);
+}
+.light-orb-2 {
+  width: 40vw;
+  height: 40vw;
+  min-width: 280px;
+  min-height: 280px;
+  top: 38vh;
+  right: -8vw;
+  background: radial-gradient(circle, rgba(196, 60, 20, 0.30), rgba(196, 60, 20, 0.07) 45%, transparent 70%);
+  animation-duration: 21s;
+  animation-delay: -6s;
+}
+.light-orb-3 {
+  width: 34vw;
+  height: 34vw;
+  min-width: 240px;
+  min-height: 240px;
+  bottom: -5vh;
+  left: 24vw;
+  background: radial-gradient(circle, rgba(245, 208, 106, 0.30), rgba(245, 208, 106, 0.08) 45%, transparent 70%);
+  animation-duration: 25s;
+  animation-delay: -11s;
+}
+@keyframes floatOrbGlobal {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2.2%, -3.2%) scale(1.04); }
+}
+
+/* Sections: translucent panes over the fixed glow + canvas.
+   A slightly stronger gradient from the top keeps text high-contrast,
+   while the lowered mid-alpha lets the animated background breathe through. */
+.section {
+  position: relative;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(8, 5, 3, 0.86) 0%, rgba(8, 5, 3, 0.6) 22%, rgba(8, 5, 3, 0.44) 45%, rgba(8, 5, 3, 0.6) 78%, rgba(8, 5, 3, 0.86) 100%) !important;
+}
+.section:nth-of-type(even),
+.about,
+.menu-section,
+.gallery,
+.faq,
+.booking {
+  background:
+    linear-gradient(180deg, rgba(10, 7, 5, 0.88) 0%, rgba(10, 7, 5, 0.64) 20%, rgba(10, 7, 5, 0.48) 50%, rgba(10, 7, 5, 0.64) 80%, rgba(10, 7, 5, 0.88) 100%) !important;
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+}
+.header {
+  z-index: 1000;
+}
+.footer {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(180deg, #0a0705, #040302) !important;
+}
+
+/* Respect users who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .mesh,
+  .light-orb,
+  .stars-layer {
+    animation: none !important;
+    opacity: 0.3 !important;
+  }
+  body {
+    background-image:
+      radial-gradient(ellipse 120% 70% at 50% -10%, rgba(224, 177, 42, 0.14), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 0% 30%, rgba(196, 60, 20, 0.08), transparent 60%),
+      radial-gradient(ellipse 45% 50% at 100% 55%, rgba(200, 120, 30, 0.07), transparent 55%),
+      radial-gradient(ellipse 80% 40% at 50% 112%, rgba(60, 30, 15, 0.25), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 25, 15, 0.22), transparent 70%),
+      linear-gradient(180deg, #0b0705 0%, #050302 38%, #080604 100%);
+  }
+  .mesh {
+    opacity: 0.35 !important;
+  }
+}
+
+/* Ensure containers sit above the lighting layers */
+.section > .container,
+.menu-section > .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Animated mesh breathing pool */
+.mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 45% at 22% 12%, rgba(245, 208, 106, 0.15), transparent 64%),
+    radial-gradient(ellipse 55% 45% at 82% 72%, rgba(150, 55, 20, 0.11), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 60% 18%, rgba(224, 177, 42, 0.08), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 12% 88%, rgba(196, 60, 20, 0.08), transparent 62%);
+  opacity: 1;
+  animation: meshGlow 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Static light pools on the mesh */
+.mesh::before {
+  content: '';
+  position: absolute;
+  width: 460px;
+  height: 460px;
+  top: -110px;
+  left: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 177, 42, 0.18), transparent 70%);
+  filter: blur(44px);
+}
+.mesh::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  bottom: 4%;
+  right: 6%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(160, 50, 15, 0.16), transparent 70%);
+  filter: blur(50px);
+}
+
+/* Subtle warm starfield depth */
+.stars-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1.5px 1.5px at 22% 34%, rgba(245, 208, 106, 0.9), transparent 100%),
+    radial-gradient(1px 1px at 68% 18%, rgba(245, 208, 106, 0.7), transparent 100%),
+    radial-gradient(1.5px 1.5px at 81% 66%, rgba(255, 255, 255, 0.65), transparent 100%),
+    radial-gradient(1px 1px at 44% 82%, rgba(245, 208, 106, 0.6), transparent 100%),
+    radial-gradient(1.2px 1.2px at 12% 74%, rgba(255, 245, 220, 0.5), transparent 100%),
+    radial-gradient(1px 1px at 91% 38%, rgba(245, 208, 106, 0.55), transparent 100%);
+  background-repeat: repeat;
+  background-size: 340px 340px, 420px 420px, 500px 500px, 380px 380px, 460px 460px, 540px 540px;
+  animation: starDrift 90s linear infinite;
+  will-change: background-position;
+}
+.stars-layer.stars-b {
+  animation-duration: 140s;
+  animation-direction: reverse;
+  opacity: 0.35;
+}
+@keyframes starDrift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 340px -170px, -420px 210px, 250px 500px, -190px -380px, 230px 460px, -270px 270px; }
+}
+
+/* Depth planes — soft gold / amber pools */
+.depth-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.depth-layer.depth-1 {
+  background: radial-gradient(ellipse 34% 26% at 18% 22%, rgba(224, 177, 42, 0.05), transparent 70%);
+}
+.depth-layer.depth-2 {
+  background: radial-gradient(ellipse 30% 24% at 84% 60%, rgba(196, 60, 20, 0.05), transparent 70%);
+}
+
+/* Three floating background orbs behind every section */
+.light-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.72;
+  animation: floatOrbGlobal 17s ease-in-out infinite;
+  will-change: transform;
+}
+.light-orb-1 {
+  width: 42vw;
+  height: 42vw;
+  min-width: 300px;
+  min-height: 300px;
+  top: -5vh;
+  left: -14vw;
+  background: radial-gradient(circle, rgba(224, 177, 42, 0.34), rgba(224, 177, 42, 0.10) 45%, transparent 70%);
+}
+.light-orb-2 {
+  width: 38vw;
+  height: 38vw;
+  min-width: 260px;
+  min-height: 260px;
+  top: 42vh;
+  right: -10vw;
+  background: radial-gradient(circle, rgba(200, 80, 22, 0.28), rgba(200, 80, 22, 0.07) 45%, transparent 70%);
+  animation-duration: 23s;
+  animation-delay: -7s;
+}
+.light-orb-3 {
+  width: 32vw;
+  height: 32vw;
+  min-width: 230px;
+  min-height: 230px;
+  bottom: -4vh;
+  left: 28vw;
+  background: radial-gradient(circle, rgba(245, 208, 106, 0.28), rgba(245, 208, 106, 0.07) 45%, transparent 70%);
+  animation-duration: 27s;
+  animation-delay: -13s;
+}
+
+/* Semi-transparent section panes so the background glow breathes through */
+.section {
+  position: relative;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(8, 5, 3, 0.88) 0%, rgba(8, 5, 3, 0.70) 22%, rgba(8, 5, 3, 0.58) 45%, rgba(8, 5, 3, 0.72) 78%, rgba(8, 5, 3, 0.86) 100%) !important;
+}
+.section:nth-of-type(even),
+.about,
+.menu-section,
+.gallery,
+.faq,
+.booking {
+  background:
+    linear-gradient(180deg, rgba(10, 7, 5, 0.90) 0%, rgba(10, 7, 5, 0.74) 20%, rgba(10, 7, 5, 0.62) 50%, rgba(10, 7, 5, 0.74) 80%, rgba(10, 7, 5, 0.90) 100%) !important;
+}
+
+/* Hero keeps its own cinematic gradient (unchanged) */
+.hero {
+  position: relative;
+  z-index: 1;
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(6, 4, 3, 0.45) 0%, rgba(6, 4, 3, 0.12) 32%, rgba(6, 4, 3, 0.92) 100%),
+    radial-gradient(ellipse at 50% 40%, transparent 20%, rgba(6, 4, 3, 0.55) 100%);
+}
+
+/* Reduced-motion guard */
+@media (prefers-reduced-motion: reduce) {
+  .mesh,
+  .light-orb,
+  .stars-layer {
+    animation: none !important;
+    opacity: 0.3 !important;
+  }
+  body {
+    background-image:
+      radial-gradient(ellipse 120% 70% at 50% -10%, rgba(224, 177, 42, 0.14), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 0% 30%, rgba(196, 60, 20, 0.08), transparent 60%),
+      radial-gradient(ellipse 45% 50% at 100% 55%, rgba(200, 120, 30, 0.07), transparent 55%),
+      radial-gradient(ellipse 80% 40% at 50% 112%, rgba(60, 30, 15, 0.25), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 25, 15, 0.22), transparent 70%),
+      linear-gradient(180deg, #0b0705 0%, #050302 38%, #080604 100%);
+  }
+}
+
+/* Ensure containers sit above the lighting layers */
+.section > .container,
+.menu-section > .container {
+  position: relative;
+  z-index: 2;
 }
 
 /* ========== HEADER ========== */
@@ -377,8 +1057,10 @@ body {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(224,177,42,0.06), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 95% 100%, rgba(120,40,20,0.05), transparent 50%);
+    radial-gradient(ellipse 70% 50% at 10% 0%, rgba(224,177,42,0.13), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 95% 100%, rgba(160,55,22,0.11), transparent 50%),
+    radial-gradient(ellipse 45% 35% at 85% 8%, rgba(245,208,106,0.07), transparent 60%),
+    radial-gradient(ellipse 55% 40% at 50% 100%, rgba(224,177,42,0.08), transparent 65%);
 }
 .section-head { text-align: center; margin-bottom: 3.5rem; }
 .section-label {
@@ -389,10 +1071,12 @@ body {
 .section-title {
   font-family: var(--font-d); font-size: clamp(2.1rem, 4.5vw, 3rem);
   font-weight: 600; line-height: 1.12; color: var(--cream);
+  text-shadow: 0 2px 22px rgba(4, 2, 1, 0.65);
 }
 .section-desc {
   margin-top: 0.7rem; color: var(--muted); font-size: 0.92rem;
   max-width: 400px; margin-inline: auto; font-weight: 500;
+  text-shadow: 0 1px 14px rgba(4, 2, 1, 0.6);
 }
 
 /* Solid alternating bands from Our Story → end */
@@ -752,4 +1436,54 @@ body {
   .section { padding: 4.5rem 0; }
   .container { width: calc(100% - 1.6rem); }
   .hero-title { font-size: 2.6rem; }
+}
+
+/* ============================================================
+   GLOW BOOST — vibrant bubbles + warmer ambient light
+   (appended last so it overrides the earlier ambient layers on
+   every page that loads styles.css)
+   ============================================================ */
+.bubble {
+  /* bright warm core + wide gold halo so every bubble reads as a glowing
+     ember of light rather than a flat dot */
+  background:
+    radial-gradient(circle at 32% 28%,
+      rgba(255, 252, 236, 0.95),
+      rgba(255, 228, 148, 0.6) 30%,
+      rgba(245, 208, 106, 0.26) 58%,
+      rgba(245, 208, 106, 0.08) 78%,
+      transparent 86%);
+  box-shadow:
+    0 0 8px rgba(255, 240, 190, 0.55),
+    0 0 22px rgba(245, 208, 106, 0.4),
+    0 0 48px rgba(224, 177, 42, 0.22);
+  border: 1px solid rgba(255, 236, 180, 0.3);
+}
+/* Same rise path, but brighter — bubbles stay visible while crossing dark
+   sections instead of fading to near-nothing. */
+@keyframes bubbleRise {
+  0%   { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
+  6%   { opacity: 0.75; }
+  25%  { transform: translate3d(var(--drift, 20px), -26vh, 0) scale(0.95); opacity: 0.8; }
+  50%  { transform: translate3d(calc(var(--drift, 20px) * -0.6), -52vh, 0) scale(1); opacity: 0.75; }
+  75%  { transform: translate3d(var(--drift, 20px), -78vh, 0) scale(1.03); opacity: 0.6; }
+  94%  { opacity: 0; }
+  100% { transform: translate3d(calc(var(--drift, 20px) * -0.3), -108vh, 0) scale(1.06); opacity: 0; }
+}
+/* Ambient orbs run hotter for a more vibrant, living background. */
+.light-orb { opacity: 0.9; }
+.light-orb-1 {
+  background: radial-gradient(circle, rgba(233, 186, 60, 0.42), rgba(224, 177, 42, 0.13) 45%, transparent 70%);
+}
+.light-orb-2 {
+  background: radial-gradient(circle, rgba(214, 92, 26, 0.34), rgba(200, 80, 22, 0.09) 45%, transparent 70%);
+}
+.light-orb-3 {
+  background: radial-gradient(circle, rgba(245, 208, 106, 0.3), rgba(245, 208, 106, 0.08) 45%, transparent 70%);
+}
+/* A touch more starlight shimmer. */
+.stars-layer.stars-a { opacity: 0.7; }
+.stars-layer.stars-b { opacity: 0.45; }
+@media (prefers-reduced-motion: reduce) {
+  .bubble { animation: none !important; }
 }
