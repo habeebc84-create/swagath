@@ -180,7 +180,6 @@
     });
   }
 
-  /* Built by Habeeb popup — show every visit; dismiss for this session only */
   (function () {
     var pop = document.getElementById('habeebPopup');
     if (!pop) return;
