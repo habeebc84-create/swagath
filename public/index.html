@@ -126,14 +126,17 @@
   </header>
 
   <section id="home" class="hero">
-    <div class="hero-media">        <img
-          id="heroImg"
-          src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1920&q=85"
-          alt="Swagath restaurant warm dining hall"
-          width="1920" height="1280"
-          decoding="async"
-          onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80';"
-        >
+    <div class="hero-media">
+      <img
+        id="heroImg"
+        class="hero-img"
+        src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1920&q=85"
+        alt="Swagath restaurant warm dining hall"
+        data-fallback="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80"
+        width="1920"
+        height="1280"
+        decoding="async"
+      >
       <div class="hero-overlay"></div>
     </div>
     <div class="orb orb-1" aria-hidden="true"></div>
@@ -143,12 +146,12 @@
         <span class="telugu">స్వాగత్</span>
         Multicuisine Restaurant A/C
       </h1>
-      <p class="hero-sub fade-up d2">Dining · Catering · Bulk orders — Rayalaseema heat, tandoori & dum biryani in Kalikiri</p>
+      <p class="hero-sub fade-up d2" id="heroSub">Dining · Catering · Bulk orders — Rayalaseema heat, tandoori & dum biryani in Kalikiri</p>
       <div class="hero-actions fade-up d3">
         <a href="#booking" class="btn btn-primary">Book Table · టేబుల్ బుక్</a>
         <a href="https://wa.me/9121618732?text=Hi%20Swagath%2C%20I%20want%20to%20order" class="btn btn-ghost" target="_blank" rel="noopener">WhatsApp Order</a>
       </div>
-      <div class="hero-meta fade-up d4">
+      <div class="hero-meta fade-up d4" id="heroMeta">
         <div class="meta-chip"><strong>₹200–400</strong><span>Per person</span></div>
         <div class="meta-chip"><strong>A/C</strong><span>Dining</span></div>
         <div class="meta-chip"><strong>10–500+</strong><span>Catering pax</span></div>
@@ -213,9 +216,9 @@
       <div class="section-head">
         <span class="section-label">Must Try</span>
         <h2 class="section-title">Popular Dishes</h2>
-        <p class="section-desc">Guest favourites from Kalikiri</p>
+        <p class="section-desc" id="specialsLabel">Guest favourites from Kalikiri</p>
       </div>
-      <div class="specials-grid">
+      <div class="specials-grid" id="specialsGrid">
         <article class="special-card reveal">
           <img src="https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=800&q=85" alt="Tandoori Chicken" loading="lazy" decoding="async" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'">
           <div class="special-body">
@@ -409,7 +412,7 @@
                 <option value="family">Family Function</option>
                 <option value="bulk">Bulk / Parcel Order</option>
                 <option value="other">Other</option>
-              </select>
+      </select>
             </div>
           </div>
           <div class="form-grid">
@@ -487,7 +490,7 @@
         <span class="section-label">Loved by Locals</span>
         <h2 class="section-title">What People Say</h2>
       </div>
-      <div class="reviews-grid">
+      <div class="reviews-grid" id="reviewsGrid">
         <article class="review-card reveal"><div class="stars">★★★★★</div><blockquote>“Food is fantastic. Atmosphere is mind blowing.”</blockquote><cite>— Subhash Khatri</cite></article>
         <article class="review-card reveal"><div class="stars">★★★★★</div><blockquote>“Best Rayalseema cuisine in Kalikiri. Real spicy.”</blockquote><cite>— ashraf bimal</cite></article>
         <article class="review-card reveal"><div class="stars">★★★★★</div><blockquote>“Hyderabadi Dum Biryani so tasty. Staff good.”</blockquote><cite>— Santosh Kumar</cite></article>
@@ -670,7 +673,8 @@
   <a class="wa-float" href="https://wa.me/9121618732?text=Hi%20Swagath%20Restaurant" target="_blank" rel="noopener" aria-label="WhatsApp">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.85 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     <span>WhatsApp</span>
-  </a>  </script>
+  </a>
+
   <script src="/smooth-page.js"></script>
   <script src="/app.js"></script>
   <script src="/particles.js"></script>

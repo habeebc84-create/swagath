@@ -8,7 +8,7 @@
       .replace(/&/g, '&' + 'amp;')
       .replace(/</g, '&' + 'lt;')
       .replace(/>/g, '&' + 'gt;')
-      .replace(/"/g, '&' + 'quot;');
+      .replace(/\"/g, '&' + 'quot;');
   }
 
   if (toggle && nav) {
@@ -181,33 +181,11 @@
   }
 
   (function () {
+    // The legacy Habeeb popup node no longer exists on the homepage. Keep this
+    // guard so any page that may still carry the old markup simply no-ops.
     var pop = document.getElementById('habeebPopup');
     if (!pop) return;
-    var key = 'swagath_habeeb_popup_v3';
-    function closePop() {
-      pop.classList.remove('is-open');
-      document.body.style.overflow = '';
-      try { sessionStorage.setItem(key, '1'); } catch (e) {}
-    }
-    function openPop() {
-      pop.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-    }
-    pop.querySelectorAll('[data-close-popup]').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        closePop();
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && pop.classList.contains('is-open')) closePop();
-    });
-    var already = false;
-    try { already = !!sessionStorage.getItem(key); } catch (e) {}
-    if (!already) {
-      setTimeout(openPop, 900);
-    }
+    pop.style.display = 'none';
   })();
 
   /* Seamless marquee: clone group so CSS -50% loop never jumps */
@@ -293,7 +271,7 @@
           var large = item.is_large || i === 0;
           /* No 'in' class: the entrance plays when the tile scrolls into view. */
           var cls = large ? 'gal-item span-2 reveal' : 'gal-item reveal';
-          var src = String(item.image_url || '').replace(/"/g, '').replace(/</g, '');
+          var src = String(item.image_url || '').replace(/\"/g, '').replace(/</g, '');
           var cap = esc(item.caption || 'Gallery');
           return '<div class="' + cls + '">' +
             '<img src="' + src + '" alt="' + cap + '" loading="lazy" decoding="async" onerror="this.style.opacity=0.3">' +
@@ -303,6 +281,112 @@
       })
       .catch(function () {});
   }
+
+  function renderSpecials(specials) {
+    var grid = document.getElementById('specialsGrid');
+    if (!grid) return;
+    if (!specials || !specials.length) {
+      grid.innerHTML = '<div class="empty-state reveal"><h3>No popular dishes added yet</h3></div>';
+      return;
+    }
+    grid.innerHTML = specials.map(function (it) {
+      var imgUrl = String(it.image_url || '').replace(/\"/g, '').replace(/</g, '');
+      var fallback = String(it.image_fallback || '').replace(/\"/g, '').replace(/</g, '');
+      var title = esc(it.title || 'Special');
+      var blurb = esc(it.blurb || '');
+      var price = esc(it.price || '');
+      var imgAlt = title;
+      var onerror = fallback
+        ? "this.onerror=null;this.src='" + fallback + "';"
+        : "this.style.opacity=0.3;";
+      return '<article class="special-card reveal">' +
+        '<img src="' + imgUrl + '" alt="' + imgAlt + '" loading="lazy" decoding="async" onerror="' + onerror + '">' +
+        '<div class="special-body">' +
+          '<h3>' + title + '</h3>' +
+          (blurb ? '<p>' + blurb + '</p>' : '') +
+          '<span class="special-price">' + price + '</span>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    observeReveals(grid);
+  }
+
+  (function loadSpecials() {
+    var grid = document.getElementById('specialsGrid');
+    if (!grid) return;
+    fetch(API + '/specials/list')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && data.specials && data.specials.length) {
+          renderSpecials(data.specials);
+        }
+      })
+      .catch(function () {});
+  })();
+
+  function renderReviews(reviews) {
+    var grid = document.getElementById('reviewsGrid');
+    if (!grid) return;
+    if (!reviews || !reviews.length) {
+      grid.innerHTML = '<div class="empty-state reveal"><h3>No reviews yet</h3></div>';
+      return;
+    }
+    grid.innerHTML = reviews.map(function (it) {
+      var stars = '';
+      var n = Number(it.rating);
+      for (var i = 0; i < 5; i++) {
+        stars += (i < n) ? '★' : '☆';
+      }
+      if (!stars) stars = '★★★★★';
+      return '<article class="review-card reveal"><div class="stars">' + stars + '</div><blockquote>' +
+        esc(it.text || '') + '</blockquote><cite>— ' + esc(it.author || '') + '</cite></article>';
+    }).join('');
+    observeReveals(grid);
+  }
+
+  (function loadReviews() {
+    var grid = document.getElementById('reviewsGrid');
+    if (!grid) return;
+    fetch(API + '/reviews/list')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && data.reviews && data.reviews.length) {
+          renderReviews(data.reviews);
+        }
+      })
+      .catch(function () {});
+  })();
+
+  (function loadHeroEditable() {
+    var img = document.getElementById('heroImg');
+    if (!img) return;
+    fetch(API + '/hero-image')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && data.hero_url) {
+          img.src = data.hero_url;
+          img.removeAttribute('data-fallback');
+        }
+      })
+      .catch(function () {});
+
+    fetch(API + '/home-text')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data) return;
+        var sub = document.getElementById('heroSub');
+        if (sub && data.subtitle) sub.textContent = data.subtitle;
+        var meta = document.getElementById('heroMeta');
+        if (meta && data.price && data.seating && data.cateringPax && data.location) {
+          meta.innerHTML =
+            '<div class="meta-chip"><strong>' + esc(data.price) + '</strong><span>Per person</span></div>' +
+            '<div class="meta-chip"><strong>' + esc(data.seating) + '</strong><span>Dining</span></div>' +
+            '<div class="meta-chip"><strong>' + esc(data.cateringPax) + '</strong><span>Catering pax</span></div>' +
+            '<div class="meta-chip"><strong>' + esc(data.location) + '</strong><span>' + esc(data.meta || '') + '</span></div>';
+        }
+      })
+      .catch(function () {});
+  })();
 
   function bindForm(formId, msgId, endpoint, buildPayload) {
     var form = document.getElementById(formId);
