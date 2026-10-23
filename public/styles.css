@@ -919,6 +919,30 @@ body::after {
   padding: 7.5rem 1.25rem 4rem;
   max-width: 860px;
 }
+.hero-brand {
+  display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  margin: 0 auto 1.4rem;
+}
+.hero-brand-img {
+  width: 56px; height: 56px; border-radius: 50%;
+  object-fit: contain; background: rgba(6,4,3,0.4);
+  box-shadow: 0 0 0 2px rgba(224,177,42,0.25), 0 8px 24px rgba(0,0,0,0.4);
+}
+.hero-brand-img.is-loaded,
+.hero-brand-img.has-fallback {
+  opacity: 1;
+}
+.hero-brand-text {
+  display: flex; flex-direction: column; align-items: flex-start;
+  line-height: 1.1;
+}
+.hero-brand-name {
+  font-size: 1.05rem; font-weight: 700; color: var(--gold2);
+  letter-spacing: 0.04em;
+}
+.hero-brand-sub {
+  font-size: 0.78rem; color: var(--muted); letter-spacing: 0.02em;
+}
 .hero-badge {
   display: inline-flex; align-items: center; gap: 0.55rem;
   padding: 0.45rem 1.15rem;
