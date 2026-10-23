@@ -41,7 +41,6 @@
   <link rel="stylesheet" href="/interactive-light.css">
   <link rel="stylesheet" href="/site-fix.css">
   <noscript><style>
-    /* Without JS nothing adds .in — make sure content is never stuck invisible */
     .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   </style></noscript>
   <script type="application/ld+json">
@@ -84,7 +83,6 @@
   <div class="depth-layer depth-1" aria-hidden="true"></div>
   <div class="depth-layer depth-2" aria-hidden="true"></div>
   <canvas id="particles" aria-hidden="true"></canvas>
-  <!-- Synchronized warm-bubble drift: one shared timeline across every section -->
   <div class="bubbles-layer" aria-hidden="true">
     <span class="bubble" style="--x:6%;--size:10px;--dur:34s;--delay:0s;--drift:26px"></span>
     <span class="bubble" style="--x:15%;--size:16px;--dur:28s;--delay:-6s;--drift:-32px"></span>
@@ -130,9 +128,9 @@
       <img
         id="heroImg"
         class="hero-img"
-        src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1920&q=85"
+        src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=85"
         alt="Swagath restaurant warm dining hall"
-        data-fallback="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1920&q=80"
+        data-fallback="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1920&q=80"
         width="1920"
         height="1280"
         decoding="async"
@@ -161,8 +159,6 @@
     </div>
     <div class="scroll-hint" aria-hidden="true"><i></i></div>
   </section>
-
-  <!-- promo strip removed -->
 
   <section id="about" class="section about">
     <div class="container">
@@ -413,7 +409,7 @@
                 <option value="family">Family Function</option>
                 <option value="bulk">Bulk / Parcel Order</option>
                 <option value="other">Other</option>
-      </select>
+              </select>
             </div>
           </div>
           <div class="form-grid">
