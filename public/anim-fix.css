@@ -79,19 +79,28 @@
   }
 }
 
-/* ---- Hero ---- */
+/* ---- Hero ----
+   Coordinated with pro-max-ux.css so the headline only animates after the
+   hero image has started painting. If both sheets apply, the later one wins
+   and the site still never jumps late. */
 @keyframes heroFadeUp {
-  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 .hero-content > * {
-  animation: heroFadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  opacity: 0;
+  animation: heroFadeUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-play-state: paused !important;
 }
-.hero-content > *:nth-child(1) { animation-delay: 0.08s !important; }
-.hero-content > *:nth-child(2) { animation-delay: 0.18s !important; }
-.hero-content > *:nth-child(3) { animation-delay: 0.28s !important; }
-.hero-content > *:nth-child(4) { animation-delay: 0.38s !important; }
-.hero-content > *:nth-child(5) { animation-delay: 0.48s !important; }
+.hero-media img.is-loaded ~ .hero-content > *,
+.hero-media img.has-fallback ~ .hero-content > * {
+  animation-play-state: running !important;
+}
+.hero-content > *:nth-child(1) { animation-delay: 0.05s !important; }
+.hero-content > *:nth-child(2) { animation-delay: 0.14s !important; }
+.hero-content > *:nth-child(3) { animation-delay: 0.22s !important; }
+.hero-content > *:nth-child(4) { animation-delay: 0.30s !important; }
+.hero-content > *:nth-child(5) { animation-delay: 0.38s !important; }
 
 /* ---- Marquees (RTL) ---- */
 @keyframes marqueeRTL {
@@ -205,22 +214,32 @@
    first scroll passage so they feel like a story being turned.
    ============================================================ */
 
-/* ---- Hero: headline letters strike in (bold gold flicker) ---- */
+/* ---- Hero: headline letters strike in (bold gold flicker) ----
+   Now gated on the hero image being loaded so the Telugu/English headline
+   does not flare in before the background is ready. */
 @keyframes heroLetterFlare {
-  0%   { opacity: 0; transform: translate3d(0, 18px, 0) skewX(-7deg); filter: brightness(0.2); }
-  12%  { opacity: 1; filter: brightness(1.6); }
-  22%  { opacity: 1; filter: brightness(0.75); }
-  28%  { opacity: 1; transform: translate3d(0, 0, 0) skewX(0); filter: brightness(1.15); }
-  55%  { filter: brightness(0.9); }
+  0%   { opacity: 0; transform: translate3d(0, 14px, 0) skewX(-6deg); filter: brightness(0.25); }
+  14%  { opacity: 1; filter: brightness(1.55); }
+  24%  { opacity: 1; filter: brightness(0.78); }
+  30%  { opacity: 1; transform: translate3d(0, 0, 0) skewX(0); filter: brightness(1.12); }
+  55%  { filter: brightness(0.92); }
   100% { opacity: 1; transform: none; filter: brightness(1); }
 }
 .hero-title .telugu,
 .hero-title .en {
   display: inline-block;
+  opacity: 0;
   animation: heroLetterFlare 1.0s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation-play-state: paused !important;
 }
-.hero-title .telugu { animation-delay: 0.06s !important; }
-.hero-title .en    { animation-delay: 0.18s !important; }
+.hero-media img.is-loaded ~ .hero-content .hero-title .telugu,
+.hero-media img.is-loaded ~ .hero-content .hero-title .en,
+.hero-media img.has-fallback ~ .hero-content .hero-title .telugu,
+.hero-media img.has-fallback ~ .hero-content .hero-title .en {
+  animation-play-state: running !important;
+}
+.hero-title .telugu { animation-delay: 0.04s !important; }
+.hero-title .en    { animation-delay: 0.14s !important; }
 
 /* ---- Section titles: slide up + subtle gold rise, delayed per card group ---- */
 @keyframes sectionTitleSlide {
