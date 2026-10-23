@@ -78,10 +78,9 @@
     display: none !important;
   }
   .hero-media img { opacity: 1; }
-  .hero-brand-img { opacity: 1; }
+  .hero-overlay { opacity: 1; }
   .hero-content { opacity: 1; }
   .hero-content > *,
-  .hero-content .hero-brand,
   .hero-content .hero-welcome,
   .hero-overlay { opacity: 1; animation: none !important; }
   .hero-overlay { opacity: 1; }
