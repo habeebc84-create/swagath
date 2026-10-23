@@ -83,6 +83,7 @@
   .hero-content > *,
   .hero-content .hero-brand,
   .hero-content .hero-welcome { opacity: 1; animation: none !important; }
+  .hero-overlay { opacity: 1; }
 }
 
 /* ---- Hero ----

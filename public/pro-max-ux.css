@@ -133,11 +133,13 @@ textarea:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-media { opacity: 1; }
   .hero-media img { opacity: 1; }
   .hero-brand-img { opacity: 1; }
   .hero-content { opacity: 1; }
   .hero-content > *,
   .hero-content .hero-brand,
   .hero-content .hero-welcome { opacity: 1; animation: none !important; }
+  .hero-overlay { opacity: 1; }
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
 }

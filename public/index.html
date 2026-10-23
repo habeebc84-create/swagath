@@ -136,8 +136,8 @@
         width="1920"
         height="1280"
         decoding="async"
-        onload="this.classList.add('is-loaded');"
-        onerror="this.onerror=null;this.src=this.getAttribute('data-fallback')||'';this.classList.add('has-fallback');"
+        onload="document.querySelector('.hero-media').classList.add('is-loaded');"
+        onerror="this.onerror=null;this.src=this.getAttribute('data-fallback')||'';document.querySelector('.hero-media').classList.add('has-fallback');"
       >
       <div class="hero-overlay"></div>
     </div>
