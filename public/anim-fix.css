@@ -35,8 +35,7 @@
 .gallery-grid .gal-item.reveal {
   opacity: 0;
   transform: translate3d(0, 40px, 0) scale(0.9);
-  filter: brightness(0.25);
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 /* per-card stagger so the pop moves across the grid */
 .gallery-grid .gal-item.reveal.in:nth-child(1) { animation-delay: 0.08s !important; }

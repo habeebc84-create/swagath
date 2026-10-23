@@ -53,6 +53,7 @@ img {
 .special-card img,
 .hero-media img {
   object-fit: cover;
+  filter: none;
 }
 
 /* Forms usable */
