@@ -1,217 +1,216 @@
+/* Small dot-field lighting — one canvas, no per-dot DOM nodes.
+   The previous version created one <span> per dot (~3,800 on desktop) and
+   rewrote every dot's transform / opacity / background / box-shadow on
+   every frame, while a CSS `dotGlow` animation fought the JS transform.
+   This version draws the same faint dot grid on a single canvas, brightens
+   only the dots near the cursor, and stops animating when the tab is
+   hidden, the cursor has left, or the user prefers reduced motion.
+   Touch / coarse-pointer devices get one static frame: a finger covers
+   the glow anyway, and a rAF loop there only cost battery. */
 (function () {
   'use strict';
-  var dotsField = document.getElementById('dotsField');
-  var dotsCursor = document.getElementById('dotsCursor');
-  if (!dotsField) return;
-  if (document.readyState === 'complete') {
-    init();
-  } else {
-    window.addEventListener('load', init, { passive: true });
-  }
-  return;
 
-  function init() {
-  var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var gap = 24;
-  var cols = Math.ceil(window.innerWidth / gap) + 2;
-  var rows = Math.ceil(window.innerHeight / gap) + 2;
-  var dotCount = cols * rows;
-  var dotEls = new Array(dotCount);
-  var dotX = new Float64Array(dotCount);
-  var dotY = new Float64Array(dotCount);
-  var dotHomeX = new Float64Array(dotCount);
-  var dotHomeY = new Float64Array(dotCount);
-  var dotVelX = new Float64Array(dotCount);
-  var dotVelY = new Float64Array(dotCount);
-  var dotActive = new Uint8Array(dotCount);
+  var field = document.getElementById('dotsField');
+  if (!field) return;
 
-  for (var i = 0; i < dotCount; i++) {
-    var dot = document.createElement('span');
-    dot.className = 'dot';
-    dotsField.appendChild(dot);
-    dotEls[i] = dot;
-  }
-  dotsField.appendChild(dotsCursor);
+  var motionQuery = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : null;
+  var finePointer = window.matchMedia
+    ? window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    : true;
 
-  var cursorX = null;
-  var cursorY = null;
+  var GAP = 28;
+  var RADIUS = 280;
+  var RADIUS_SQ = RADIUS * RADIUS;
 
-  function onMove(e) {
-    var p = null;
-    if (e.touches && e.touches[0]) {
-      p = e.touches[0];
-    } else if (e.clientX != null) {
-      p = e;
-    }
-    if (p == null) return;
-    cursorX = p.clientX;
-    cursorY = p.clientY;
-  }
+  var canvas = document.createElement('canvas');
+  canvas.setAttribute('aria-hidden', 'true');
+  field.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-  function onLeave() {
-    cursorX = null;
-    cursorY = null;
-  }
+  var width = 0;
+  var height = 0;
+  var homes = null; // Float64Array [x0, y0, x1, y1, ...]
+  var count = 0;
 
-  function onMouseEnter() {
-    if (cursorX == null || cursorY == null) {
-      cursorX = -1000;
-      cursorY = -1000;
-    }
-  }
-
-  window.addEventListener('mousemove', onMove, { passive: true });
-  window.addEventListener('mouseenter', onMouseEnter, { passive: true });
-  window.addEventListener('mouseleave', onLeave, { passive: true });
-  window.addEventListener('touchmove', onMove, { passive: true });
-  window.addEventListener('touchstart', function (e) {
-    onMove(e);
-  }, { passive: true });
-  window.addEventListener('touchend', onLeave, { passive: true });
-  window.addEventListener('touchcancel', onLeave, { passive: true });
-
-  var animStart = performance.now();
+  var cursorX = 0;
+  var cursorY = 0;
+  var cursorPresent = false;
+  var lastMove = 0;
+  var glowUntil = 0;
   var raf = 0;
-  var schedule = function (now) {
-    animStart = now;
-    raf = 0;
-    layoutDots(now);
-    if (document.readyState === 'complete' || document.hidden) { raf = 0; return; }
-    raf = requestAnimationFrame(loop);
-  };
-  var loop = function (now) {
-    schedule(now);
-  };
-  raf = requestAnimationFrame(loop);
+  var lastDraw = 0;
+  var reduced = !!(motionQuery && motionQuery.matches);
 
-  function layoutDots(now) {
-    var elapsed = now - animStart;
-    for (var i = 0; i < dotCount; i++) {
-      var scaled = i * 0.71;
-      var homeX = (scaled % cols) * gap - gap;
-      var homeY = (Math.floor(scaled / cols) * gap) - gap;
-      dotHomeX[i] = homeX;
-      dotHomeY[i] = homeY;
-      var driftX = Math.sin((elapsed * 0.00016) + (i * 0.11)) * 3.0;
-      var driftY = Math.cos((elapsed * 0.00019) + (i * 0.13)) * 3.0;
-      dotX[i] = homeX + driftX;
-      dotY[i] = homeY + driftY;
-      dotVelX[i] *= 0.92;
-      dotVelY[i] *= 0.92;
-      dotX[i] += dotVelX[i];
-      dotY[i] += dotVelY[i];
-      dotEls[i].style.transform = 'translate3d(' + dotX[i] + 'px,' + dotY[i] + 'px,0)';
-    }
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.max(1, Math.round(width * dpr));
+    canvas.height = Math.max(1, Math.round(height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    if (cursorX == null || cursorY == null) {
-      for (var j = 0; j < dotCount; j++) {
-        dotActive[j] = 0;
-        dotEls[j].classList.remove('active');
-        dotVelX[j] *= 0.88;
-        dotVelY[j] *= 0.88;
-        dotX[j] += dotVelX[j];
-        dotY[j] += dotVelY[j];
-        var reboundX = (dotHomeX[j] - dotX[j]) * 0.06;
-        var reboundY = (dotHomeY[j] - dotY[j]) * 0.06;
-        dotVelX[j] += reboundX;
-        dotVelY[j] += reboundY;
-        dotX[j] += reboundX;
-        dotY[j] += reboundY;
-        dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0)';
-        dotEls[j].style.opacity = '0';
-        dotEls[j].style.background = '';
-        dotEls[j].style.boxShadow = '';
+    var cols = Math.ceil(width / GAP);
+    var rows = Math.ceil(height / GAP);
+    count = cols * rows;
+    homes = new Float64Array(count * 2);
+    var i = 0;
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        homes[i++] = (c + 0.5) * GAP;
+        homes[i++] = (r + 0.5) * GAP;
       }
+    }
+  }
+
+  /* One frame. `now` drives the gentle drift; with no cursor the glow
+     strength fades out over the 500ms after the cursor leaves. */
+  function draw(now) {
+    ctx.clearRect(0, 0, width, height);
+    if (!homes) return;
+
+    /* cursorX/Y keep the last known position so the glow can fade out
+       from where the cursor left, instead of jumping to a corner. */
+    var hasCursor = cursorPresent;
+    var fade = 1;
+    if (!hasCursor) {
+      fade = glowUntil ? Math.max(0, (glowUntil - now) / 500) : 0;
+    }
+    var t = now * 0.00016;
+
+    /* Pass 1: every dot, one fill style, one batched path. */
+    ctx.beginPath();
+    for (var i = 0; i < count; i++) {
+      var x = homes[i * 2];
+      var y = homes[i * 2 + 1];
+      var dx = Math.sin(t + x * 0.013 + y * 0.017) * 2;
+      var dy = Math.cos(t * 1.2 + x * 0.011 + y * 0.019) * 2;
+      ctx.moveTo(x + dx + 1, y + dy);
+      ctx.arc(x + dx, y + dy, 1, 0, Math.PI * 2);
+    }
+    ctx.fillStyle = 'rgba(245, 233, 210, 0.12)';
+    ctx.fill();
+
+    if (!hasCursor && fade <= 0) return;
+
+    /* Pass 2: only dots inside the glow radius get the warm light. */
+    for (var j = 0; j < count; j++) {
+      var hx = homes[j * 2];
+      var hy = homes[j * 2 + 1];
+      var ox = Math.sin(t + hx * 0.013 + hy * 0.017) * 2;
+      var oy = Math.cos(t * 1.2 + hx * 0.011 + hy * 0.019) * 2;
+      var px = hx + ox;
+      var py = hy + oy;
+      var ddx = px - cursorX;
+      var ddy = py - cursorY;
+      var distSq = ddx * ddx + ddy * ddy;
+      if (distSq >= RADIUS_SQ) continue;
+      var strength = (1 - Math.sqrt(distSq) / RADIUS) * fade;
+      if (strength <= 0) continue;
+
+      ctx.beginPath();
+      ctx.arc(px, py, 3 + strength * 4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(245, 208, 106, ' + (strength * 0.12).toFixed(3) + ')';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(px, py, 1 + strength * 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 244, 200, ' + (0.12 + strength * 0.88).toFixed(3) + ')';
+      ctx.fill();
+    }
+  }
+
+  function frame(now) {
+    raf = 0;
+    if (reduced || document.hidden) return;
+    /* When the cursor is still, the drift alone needs only ~30fps. */
+    if (now - lastDraw < 33 && now - lastMove > 150) {
+      raf = requestAnimationFrame(frame);
       return;
     }
+    lastDraw = now;
+    draw(now);
+    if (!cursorPresent && glowUntil && now >= glowUntil) {
+      glowUntil = 0;
+      draw(now);
+      return; /* idle: loop stops until the next mousemove */
+    }
+    raf = requestAnimationFrame(frame);
+  }
 
-    var cursorGlowRadius = 200;
-    var px = cursorX;
-    var py = cursorY;
-    var radiusSq = cursorGlowRadius * cursorGlowRadius;
-    for (var k = 0; k < dotCount; k++) {
-      var dx = dotX[k] - px;
-      var dy = dotY[k] - py;
-      var distSq = dx * dx + dy * dy;
-      var active = distSq < radiusSq ? 1 : 0;
-      dotActive[k] = active;
-      var strength = active ? Math.max(0, 1 - Math.sqrt(distSq) / cursorGlowRadius) : 0;
-      var scale = 1 + strength * 1.2;
-      var innerGlow = strength * 9;
-      var alpha = 0.42 + strength * 0.58;
-      var glow1 = (0.5 + strength * 0.5).toFixed(2);
+  function start() {
+    if (raf || reduced || document.hidden) return;
+    lastDraw = 0;
+    raf = requestAnimationFrame(frame);
+  }
 
-      if (active) {
-        var pull = strength * 0.11;
-        dotVelX[k] += (dx / (Math.sqrt(distSq) || 1)) * pull;
-        dotVelY[k] += (dy / (Math.sqrt(distSq) || 1)) * pull;
-      } else {
-        dotVelX[k] *= 0.93;
-        dotVelY[k] *= 0.93;
-      }
-      dotX[k] += dotVelX[k];
-      dotY[k] += dotVelY[k];
-
-      dotEls[k].style.transform = 'translate3d(' + dotX[k] + 'px,' + dotY[k] + 'px,0) scale(' + scale + ')';
-      dotEls[k].style.opacity = alpha.toFixed(3);
-      dotEls[k].classList.toggle('active', active);
-      if (active) {
-        dotEls[k].style.background = 'rgba(255,244,200,' + alpha.toFixed(3) + ')';
-        dotEls[k].style.boxShadow = '0 0 ' + String(innerGlow).slice(0, 4) + 'px rgba(245,208,106,' + glow1 + ')';
-      } else {
-        dotEls[k].style.background = '';
-        dotEls[k].style.boxShadow = '';
-      }
+  function stop() {
+    if (raf) {
+      cancelAnimationFrame(raf);
+      raf = 0;
     }
   }
 
-  if (reduceMotion) {
-    dotsField.style.display = 'none';
-    return;
+  function drawStatic() {
+    stop();
+    cursorPresent = false;
+    glowUntil = 0;
+    draw(performance.now());
   }
 
-  var ro = null;
-  if (window.ResizeObserver) {
-    try {
-      ro = new ResizeObserver(function () { placeDots(); });
-      ro.observe(dotsField);
-    } catch (err) {
-      ro = null;
-    }
-  }
-
-  function placeDots() {
-    cols = Math.ceil(window.innerWidth / gap) + 2;
-    rows = Math.ceil(window.innerHeight / gap) + 2;
-    dotCount = cols * rows;
-    dotEls.length = 0;
-    dotX = new Float64Array(dotCount);
-    dotY = new Float64Array(dotCount);
-    dotHomeX = new Float64Array(dotCount);
-    dotHomeY = new Float64Array(dotCount);
-    dotVelX = new Float64Array(dotCount);
-    dotVelY = new Float64Array(dotCount);
-    dotActive = new Uint8Array(dotCount);
-
-    dotsField.textContent = '';
-    for (var i = 0; i < dotCount; i++) {
-      var dot = document.createElement('span');
-      dot.className = 'dot';
-      dotsField.appendChild(dot);
-      dotEls[i] = dot;
-    }
-    dotsField.appendChild(dotsCursor);
-  }
-
-  window.addEventListener('resize', function () { placeDots(); }, { passive: true });
-
-  window.addEventListener('visibilitychange', function () {
-    if (document.hidden) {
-      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+  function applyPreference() {
+    reduced = !!(motionQuery && motionQuery.matches);
+    if (reduced) {
+      stop();
+      field.style.display = 'none';
     } else {
-      animStart = performance.now();
-      if (!raf) { raf = requestAnimationFrame(loop); }
+      field.style.display = '';
+      if (finePointer) start();
+      else drawStatic();
     }
-  }, { passive: true });
   }
+
+  resize();
+
+  if (reduced) {
+    field.style.display = 'none';
+  } else if (!finePointer) {
+    drawStatic();
+  } else {
+    draw(performance.now());
+    window.addEventListener('mousemove', function (e) {
+      cursorX = e.clientX;
+      cursorY = e.clientY;
+      cursorPresent = true;
+      lastMove = performance.now();
+      glowUntil = 0;
+      start();
+    }, { passive: true });
+    document.documentElement.addEventListener('mouseleave', function () {
+      cursorPresent = false;
+      glowUntil = performance.now() + 500;
+      start();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop();
+      else if (cursorPresent) start();
+      else drawStatic();
+    });
+  }
+
+  if (motionQuery && typeof motionQuery.addEventListener === 'function') {
+    motionQuery.addEventListener('change', applyPreference);
+  }
+
+  var resizeTimer = 0;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      resize();
+      if (reduced) return;
+      if (!finePointer || (!cursorPresent && !raf)) drawStatic();
+    }, 150);
+  }, { passive: true });
 })();
