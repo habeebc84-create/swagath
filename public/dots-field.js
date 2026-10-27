@@ -5,7 +5,7 @@
   if (!dotsField) return;
 
   var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var gap = 22;
+  var gap = 24;
   var cols = Math.ceil(window.innerWidth / gap) + 2;
   var rows = Math.ceil(window.innerHeight / gap) + 2;
   var dotCount = cols * rows;
@@ -14,9 +14,10 @@
   var dotY = new Float64Array(dotCount);
   var dotHomeX = new Float64Array(dotCount);
   var dotHomeY = new Float64Array(dotCount);
+  var dotVelX = new Float64Array(dotCount);
+  var dotVelY = new Float64Array(dotCount);
   var dotActive = new Uint8Array(dotCount);
 
-  var frag = document.createDocumentFragment();
   for (var i = 0; i < dotCount; i++) {
     var dot = document.createElement('span');
     dot.className = 'dot';
@@ -24,6 +25,37 @@
     dotEls[i] = dot;
   }
   dotsField.appendChild(dotsCursor);
+
+  var cursorX = null;
+  var cursorY = null;
+
+  function onMove(e) {
+    var p = e.touches ? e.touches[0] : e;
+    if (p == null) return;
+    if (e.type === 'touchmove' || e.type === 'touchstart') {
+      p = e.touches[0];
+    }
+    if (p == null) return;
+    cursorX = p.clientX;
+    cursorY = p.clientY;
+    if (dotsCursor && dotsCursor.style) {
+      dotsCursor.style.transform = 'translate3d(' + (cursorX - 6) + 'px,' + (cursorY - 6) + 'px,0)';
+    }
+  }
+
+  function onLeave() {
+    cursorX = null;
+    cursorY = null;
+    if (dotsCursor && dotsCursor.style) {
+      dotsCursor.style.transform = 'translate3d(-100px,-100px,0)';
+    }
+  }
+
+  window.addEventListener('mousemove', onMove, { passive: true });
+  window.addEventListener('touchmove', onMove, { passive: true });
+  window.addEventListener('touchstart', onMove, { passive: true });
+  window.addEventListener('mouseleave', onLeave, { passive: true });
+  window.addEventListener('touchend', onLeave, { passive: true });
 
   var animStart = performance.now();
   var ticking = false;
@@ -55,29 +87,40 @@
       var driftY = Math.cos((elapsed * 0.00019) + (i * 0.13)) * 3.0;
       dotX[i] = homeX + driftX;
       dotY[i] = homeY + driftY;
+      dotVelX[i] *= 0.92;
+      dotVelY[i] *= 0.92;
+      dotX[i] += dotVelX[i];
+      dotY[i] += dotVelY[i];
       dotEls[i].style.transform = 'translate3d(' + dotX[i] + 'px,' + dotY[i] + 'px,0)';
       dotEls[i].style.left = '0px';
       dotEls[i].style.top = '0px';
     }
-    var cx = cursorX;
-    var cy = cursorY;
-    if (cx == null || cy == null) {
+
+    if (cursorX == null || cursorY == null) {
       for (var j = 0; j < dotCount; j++) {
         dotActive[j] = 0;
-        dotActive[j] = 0;
-      dotActive[j] = 0;
-      dotEls[j].classList.remove('active');        dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0)';
+        dotEls[j].classList.remove('active');
+        dotVelX[j] *= 0.86;
+        dotVelY[j] *= 0.86;
+        dotX[j] += dotVelX[j];
+        dotY[j] += dotVelY[j];
+        var reboundX = (dotHomeX[j] - dotX[j]) * 0.05;
+        var reboundY = (dotHomeY[j] - dotY[j]) * 0.05;
+        dotVelX[j] += reboundX;
+        dotVelY[j] += reboundY;
+        dotX[j] += reboundX;
+        dotY[j] += reboundY;
+        dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0)';
         dotEls[j].style.opacity = '';
         dotEls[j].style.background = '';
         dotEls[j].style.boxShadow = '';
       }
       return;
     }
-    var radius = 220;
-    var cursorGlowStrength = 1;
-    var cursorGlowRadius = 110;
-    var cursorGlowX = cx;
-    var cursorGlowY = cy;
+
+    var cursorGlowRadius = 130;
+    var cursorGlowX = cursorX;
+    var cursorGlowY = cursorY;
     for (var k = 0; k < dotCount; k++) {
       var dx = dotX[k] - cursorGlowX;
       var dy = dotY[k] - cursorGlowY;
@@ -89,6 +132,20 @@
       var innerGlow = strength * 14;
       var outerGlow = strength * 30;
       var alpha = 0.32 + strength * 0.7;
+      var glow1 = (0.45 + strength * 0.55).toFixed(2);
+      var glow2 = (0.2 + strength * 0.4).toFixed(2);
+
+      if (active) {
+        var pull = strength * 0.18;
+        dotVelX[k] += (dx / (dist || 1)) * pull;
+        dotVelY[k] += (dy / (dist || 1)) * pull;
+      } else {
+        dotVelX[k] *= 0.9;
+        dotVelY[k] *= 0.9;
+      }
+      dotX[k] += dotVelX[k];
+      dotY[k] += dotVelY[k];
+
       dotEls[k].style.transform = 'translate3d(' + dotX[k] + 'px,' + dotY[k] + 'px,0) scale(' + scale + ')';
       dotEls[k].style.opacity = String(alpha);
       dotEls[k].classList.toggle('active', active);
@@ -101,37 +158,6 @@
       }
     }
   }
-
-  var cursorX = null;
-  var cursorY = null;
-
-  function onMove(e) {
-    var p = e.touches ? e.touches[0] : e;
-    if (p == null) return;
-    if (e.type === 'touchmove' || e.type === 'touchstart') {
-      p = e.touches[0];
-    }
-    if (p == null) return;
-    cursorX = p.clientX;
-    cursorY = p.clientY;
-    if (dotsCursor && dotsCursor.style) {
-      dotsCursor.style.transform = 'translate3d(' + (cursorX - 5) + 'px,' + (cursorY - 5) + 'px,0)';
-    }
-  }
-
-  function onLeave() {
-    cursorX = null;
-    cursorY = null;
-    if (dotsCursor && dotsCursor.style) {
-      dotsCursor.style.transform = 'translate3d(-100px,-100px,0)';
-    }
-  }
-
-  window.addEventListener('mousemove', onMove, { passive: true });
-  window.addEventListener('touchmove', onMove, { passive: true });
-  window.addEventListener('touchstart', onMove, { passive: true });
-  window.addEventListener('mouseleave', onLeave, { passive: true });
-  window.addEventListener('touchend', onLeave, { passive: true });
 
   if (reduceMotion) {
     dotsField.style.display = 'none';
@@ -152,6 +178,8 @@
     dotY = new Float64Array(dotCount);
     dotHomeX = new Float64Array(dotCount);
     dotHomeY = new Float64Array(dotCount);
+    dotVelX = new Float64Array(dotCount);
+    dotVelY = new Float64Array(dotCount);
     dotActive = new Uint8Array(dotCount);
 
     dotsField.textContent = '';
