@@ -118,7 +118,7 @@
       return;
     }
 
-    var cursorGlowRadius = 110;
+    var cursorGlowRadius = 150;
     var cursorGlowX = cursorX;
     var cursorGlowY = cursorY;
     for (var k = 0; k < dotCount; k++) {
@@ -128,12 +128,12 @@
       var active = dist < cursorGlowRadius ? 1 : 0;
       dotActive[k] = active;
       var strength = active ? Math.max(0, 1 - dist / cursorGlowRadius) : 0;
-      var scale = 1 + strength * 2.2;
-      var innerGlow = strength * 8;
-      var outerGlow = strength * 18;
-      var alpha = 0.3 + strength * 0.6;
-      var glow1 = (0.45 + strength * 0.55).toFixed(2);
-      var glow2 = (0.2 + strength * 0.4).toFixed(2);
+      var scale = 1 + strength * 2.8;
+      var innerGlow = strength * 12;
+      var outerGlow = strength * 28;
+      var alpha = 0.35 + strength * 0.7;
+      var glow1 = (0.5 + strength * 0.5).toFixed(2);
+      var glow2 = (0.25 + strength * 0.45).toFixed(2);
 
       if (active) {
         var pull = strength * 0.18;
