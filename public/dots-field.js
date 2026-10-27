@@ -118,7 +118,7 @@
       return;
     }
 
-    var cursorGlowRadius = 90;
+    var cursorGlowRadius = 110;
     var cursorGlowX = cursorX;
     var cursorGlowY = cursorY;
     for (var k = 0; k < dotCount; k++) {
