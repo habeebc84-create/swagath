@@ -118,7 +118,7 @@
       return;
     }
 
-    var cursorGlowRadius = 130;
+    var cursorGlowRadius = 90;
     var cursorGlowX = cursorX;
     var cursorGlowY = cursorY;
     for (var k = 0; k < dotCount; k++) {
@@ -128,10 +128,10 @@
       var active = dist < cursorGlowRadius ? 1 : 0;
       dotActive[k] = active;
       var strength = active ? Math.max(0, 1 - dist / cursorGlowRadius) : 0;
-      var scale = 1 + strength * 2.6;
-      var innerGlow = strength * 14;
-      var outerGlow = strength * 30;
-      var alpha = 0.32 + strength * 0.7;
+      var scale = 1 + strength * 2.2;
+      var innerGlow = strength * 8;
+      var outerGlow = strength * 18;
+      var alpha = 0.3 + strength * 0.6;
       var glow1 = (0.45 + strength * 0.55).toFixed(2);
       var glow2 = (0.2 + strength * 0.4).toFixed(2);
 
@@ -140,8 +140,8 @@
         dotVelX[k] += (dx / (dist || 1)) * pull;
         dotVelY[k] += (dy / (dist || 1)) * pull;
       } else {
-        dotVelX[k] *= 0.9;
-        dotVelY[k] *= 0.9;
+        dotVelX[k] *= 0.94;
+        dotVelY[k] *= 0.94;
       }
       dotX[k] += dotVelX[k];
       dotY[k] += dotVelY[k];
