@@ -99,6 +99,7 @@ img {
 body {
   color: var(--cream) !important;
   background-color: #060403 !important;
+  background-image: none !important;
   line-height: 1.6 !important;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -464,7 +465,8 @@ body::after,
   font-weight: 600; line-height: 1.05;
   letter-spacing: -0.02em;
   margin-bottom: 1.1rem;
-  text-shadow: 0 4px 36px rgba(0,0,0,0.45);
+  color: var(--cream) !important;
+  text-shadow: 0 4px 36px rgba(0,0,0,0.55);
   word-break: break-word;
   hyphens: auto;
 }
@@ -474,10 +476,11 @@ body::after,
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   font-size: 0.95em;
   line-height: 1.05;
+  color: transparent;
 }
 .hero-sub {
   font-size: clamp(0.95rem, 2vw, 1.15rem);
-  color: var(--muted); font-weight: 500;
+  color: rgba(247, 239, 228, 0.92); font-weight: 500;
   max-width: 460px; margin: 0 auto 2.2rem;
 }
 .hero-actions {
@@ -545,6 +548,7 @@ body::after,
   display: block; font-family: var(--font-d);
   font-size: 1.45rem; font-weight: 600; color: var(--gold2); line-height: 1.15;
   word-break: break-word;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 .meta-chip span {
   font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em;
@@ -980,9 +984,7 @@ body::after,
   .container { width: 100%; padding-inline: 1rem; }
   .hero-title { font-size: 2.6rem; }
   .scroll-hint { display: none; }
-}
-
-/* ============================================================
+}/* ============================================================
    GLOW BOOST — cursor-reactive dot field only.
    The old ambient bubbles / hot orbs / star shimmer are removed. The only
    glowing moment left is the dot field lighting up near the pointer.
@@ -996,10 +998,10 @@ body::after,
   }
 }
 
-/* Remove the old ambient lighting layer rules so they stop competing with the
-   new dot-field background. These are harmless duplicates now, but they still
-   try to add mesh/stars/light-orb/bubbles back on every page that loads the
-   stylesheet, so drop them here too. */
+/* Suppress the remaining warm background wash / mesh / star / orb layers that
+   still try to render over the hero image and text. With those gone, the only
+   lighting on the page is the small dot field near the cursor. */
+body::after,
 .mesh,
 .mesh::before,
 .mesh::after,
@@ -1016,6 +1018,8 @@ body::after,
 .bubble {
   display: none !important;
 }
-body::after {
-  display: none !important;
+body {
+  background: none !important;
+  background-image: none !important;
+  background-attachment: scroll !important;
 }
