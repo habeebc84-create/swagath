@@ -103,7 +103,7 @@ textarea {
 
 /* Solid base background — no gradients, no lighting washes. */
 body {
-  background-color: #060403;
+  background-color: #020100;
 }
 
 /* Tiny dot field glued to the viewport. The dots sit under the page content,
@@ -120,12 +120,12 @@ body {
   position: absolute;
   border-radius: 50%;
   background: rgba(245, 233, 210, 0.32);
-  box-shadow: 0 0 6px rgba(245, 233, 210, 0.28);
+  box-shadow: 0 0 4px rgba(245, 233, 210, 0.22);
   will-change: transform, opacity;
 }
 .dots-field .dot.active {
-  background: rgba(255, 246, 218, 0.95);
-  box-shadow: 0 0 14px rgba(245, 208, 106, 0.9), 0 0 30px rgba(224, 177, 42, 0.45);
+  background: rgba(255, 244, 200, 1);
+  box-shadow: 0 0 18px rgba(245, 208, 106, 1), 0 0 34px rgba(224, 177, 42, 0.6);
 }
 
 /* Sections stay readable over the dot field. Slightly translucent so the dots
@@ -154,8 +154,8 @@ body {
   background: linear-gradient(180deg, #0a0705, #040302) !important;
 }
 
-/* Keep the decorative hero orbs, but dimmer than before so they do not
-   reintroduce the heavy lighting look you asked to remove. */
+/* Tiny decorative hero orbs remain, but very muted so they do not bring
+   back the lighting look you removed. */
 .orb {
   position: absolute;
   border-radius: 50%;
@@ -163,28 +163,28 @@ body {
   pointer-events: none;
   z-index: 1;
   opacity: 0;
-  animation: floatOrb 14s ease-in-out infinite;
+  animation: floatOrb 16s ease-in-out infinite;
 }
 .orb-1 {
-  width: 240px;
-  height: 240px;
+  width: 200px;
+  height: 200px;
   top: 15%;
   left: 8%;
-  background: rgba(224, 177, 42, 0.1);
+  background: rgba(224, 177, 42, 0.06);
   animation-delay: 0.1s;
 }
 .orb-2 {
-  width: 200px;
-  height: 200px;
+  width: 170px;
+  height: 170px;
   bottom: 20%;
   right: 10%;
-  background: rgba(196, 60, 20, 0.08);
+  background: rgba(196, 60, 20, 0.05);
   animation-delay: 0.3s;
-  animation-duration: 16s;
+  animation-duration: 18s;
 }
 @keyframes floatOrb {
-  0%, 100% { opacity: 0.5; transform: translate(0, 0) scale(1); }
-  50% { opacity: 0.85; transform: translate(16px, -22px) scale(1.05); }
+  0%, 100% { opacity: 0.35; transform: translate(0, 0) scale(1); }
+  50% { opacity: 0.7; transform: translate(12px, -18px) scale(1.04); }
 }
 
 /* Respect users who ask for reduced motion. */
@@ -1291,7 +1291,7 @@ body::after {
    glowing moment left is the dot field lighting up near the pointer.
    ============================================================ */
 .dots-field .dot {
-  transition: transform 0.25s var(--ease), opacity 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.22s var(--ease), opacity 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 }
 @media (prefers-reduced-motion: reduce) {
   .dots-field .dot {

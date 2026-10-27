@@ -491,10 +491,9 @@
          with the scroll. These targets carry no CSS animation of their own,
          so an inline transform can never fight one (transforms only, no
          layout, one rAF per scroll frame). */
-      var depth = Array.prototype.slice.call(document.querySelectorAll('.depth-layer'));
       var heroMedia = document.querySelector('.hero-media');
       var heroContent = document.querySelector('.hero-content');
-      if (!depth.length && !heroMedia && !heroContent) return;
+      if (!heroMedia && !heroContent) return;
 
       var ticking = false;
       function paint() {
@@ -502,13 +501,10 @@
         var y = window.pageYOffset || document.documentElement.scrollTop || 0;
         var vh = window.innerHeight || 1;
         var p = Math.min(1, y / vh);
-        for (var i = 0; i < depth.length; i++) {
-          depth[i].style.transform = 'translate3d(0,' + (y * (i + 1) * 0.05).toFixed(1) + 'px,0)';
-        }
-        if (heroMedia) heroMedia.style.transform = 'translate3d(0,' + (y * 0.18).toFixed(1) + 'px,0)';
+        if (heroMedia) heroMedia.style.transform = 'translate3d(0,' + (y * 0.16).toFixed(1) + 'px,0)';
         if (heroContent) {
-          heroContent.style.transform = 'translate3d(0,' + (y * 0.28).toFixed(1) + 'px,0)';
-          heroContent.style.opacity = String(Math.max(0, 1 - p * 1.25));
+          heroContent.style.transform = 'translate3d(0,' + (y * 0.24).toFixed(1) + 'px,0)';
+          heroContent.style.opacity = String(Math.max(0, 1 - p * 1.15));
         }
       }
       window.addEventListener('scroll', function () {
