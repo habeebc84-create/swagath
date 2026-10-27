@@ -493,6 +493,9 @@
          layout, one rAF per scroll frame). */
       var heroMedia = document.querySelector('.hero-media');
       var heroContent = document.querySelector('.hero-content');
+      if (heroContent) {
+        heroContent.style.setProperty('--cw', 'clamp(92%, 100%, 100%)');
+      }
       if (!heroMedia && !heroContent) return;
 
       var ticking = false;
