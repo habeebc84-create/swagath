@@ -4,7 +4,15 @@
 
 /* Clean stacking */
 #particles { z-index: 0 !important; pointer-events: none !important; }
-.mesh, .stars-layer, .light-orb { z-index: 0 !important; pointer-events: none !important; }
+/* site-fix no longer keeps the lighting layer alive; the site now uses a
+   dot field instead of mesh / stars / light orbs. */
+.mesh,
+.stars-layer,
+.light-orb,
+.depth-layer,
+.bubbles-layer {
+  display: none !important;
+}
 #interactiveLight, #interactiveLightSoft { z-index: 1 !important; pointer-events: none !important; }
 
 .header { z-index: 1000 !important; }

@@ -95,215 +95,46 @@ textarea {
 }
 
 /* ============================================================
-   WARM LIGHTING LAYERS — background lighting fix
+   BACKGROUND — solid base + tiny glowing dot field.
+   The old warm lighting layer/mesh/stars/light-orb/bubbles is removed here.
+   The full-page dot pattern now lives in .dots-field and reacts to the
+   cursor, rather than swimming around on its own.
    ============================================================ */
 
-/* Fixed warm wash behind everything — desktop pins; mobile scrolls. */
+/* Solid base background — no gradients, no lighting washes. */
 body {
-  background:
-    radial-gradient(ellipse 120% 70% at 50% -10%, rgba(224, 177, 42, 0.22), transparent 55%),
-    radial-gradient(ellipse 55% 45% at 0% 30%, rgba(196, 60, 20, 0.13), transparent 60%),
-    radial-gradient(ellipse 45% 50% at 100% 55%, rgba(200, 120, 30, 0.11), transparent 55%),
-    radial-gradient(ellipse 80% 40% at 50% 112%, rgba(60, 30, 15, 0.40), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 25, 15, 0.32), transparent 70%),
-    linear-gradient(180deg, #0b0705 0%, #050302 38%, #080604 100%);
-  background-attachment: fixed;
+  background-color: #060403;
 }
 
-/* Mesh atmosphere — extra pools so the glow reads across the whole page
-   instead of sitting in one spot. It breathes slowly (scale + slight drift),
-   which is cheap on the compositor and never janks the text above it. */
-.mesh {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 0 !important;
-  pointer-events: none !important;
-  background:
-    radial-gradient(ellipse 55% 40% at 25% 15%, rgba(245, 208, 106, 0.15), transparent 65%),
-    radial-gradient(ellipse 50% 45% at 80% 70%, rgba(160, 60, 20, 0.11), transparent 60%),
-    radial-gradient(ellipse 40% 35% at 65% 20%, rgba(224, 177, 42, 0.10), transparent 62%),
-    radial-gradient(ellipse 45% 40% at 15% 85%, rgba(196, 60, 20, 0.09), transparent 60%) !important;
-  opacity: 0.9 !important;
-  animation: meshGlow 22s ease-in-out infinite alternate;
-  will-change: transform;
-}
-@keyframes meshGlow {
-  from { transform: scale(1) translate3d(0, 0, 0); }
-  to   { transform: scale(1.05) translate3d(-1.2%, 0.8%, 0); }
-}
-
-/* Focal light pools baked onto the mesh — static soft gradients.
-   These add warm highlights at the corners without any blur animation cost,
-   so they read as candlelight rather than screen glare. */
-.mesh::before {
-  content: '';
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  top: -100px;
-  left: 15%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(224, 177, 42, 0.12), transparent 70%);
-  filter: blur(44px);
-}
-.mesh::after {
-  content: '';
-  position: absolute;
-  width: 360px;
-  height: 360px;
-  bottom: 5%;
-  right: 8%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(160, 50, 15, 0.10), transparent 70%);
-  filter: blur(52px);
-}
-
-/* Soft vignette — light enough to frame the glow, not crush it. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse 80% 80% at 50% 45%, transparent 48%, rgba(0, 0, 0, 0.28) 100%);
-}
-
-/* Stars / depth decoration — appears only in the negative space, never behind
-   section text. Fixed at z-index 0 under the translucent section panes, so it
-   adds atmosphere to scrolling content without competing with the copy. */
-.stars-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.4;
-  background-image:
-    radial-gradient(1.5px 1.5px at 22% 34%, rgba(245, 208, 106, 0.7), transparent 100%),
-    radial-gradient(1px 1px at 68% 18%, rgba(245, 208, 106, 0.5), transparent 100%),
-    radial-gradient(1.5px 1.5px at 81% 66%, rgba(255, 255, 255, 0.45), transparent 100%),
-    radial-gradient(1px 1px at 44% 82%, rgba(245, 208, 106, 0.45), transparent 100%),
-    radial-gradient(1.2px 1.2px at 12% 74%, rgba(255, 245, 220, 0.35), transparent 100%),
-    radial-gradient(1px 1px at 91% 38%, rgba(245, 208, 106, 0.4), transparent 100%);
-  background-repeat: repeat;
-  background-size: 340px 340px, 420px 420px, 500px 500px, 380px 380px, 460px 460px, 540px 540px;
-  animation: starDrift 140s linear infinite;
-  will-change: background-position;
-}
-.stars-layer.stars-b {
-  animation-duration: 200s;
-  animation-direction: reverse;
-  opacity: 0.28;
-}
-@keyframes starDrift {
-  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
-  to   { background-position: 340px -170px, -420px 210px, 250px 500px, -190px -380px, 230px 460px, -270px 270px; }
-}
-
-/* Depth planes — soft gold / amber pools. */
-.depth-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.depth-layer.depth-1 {
-  background: radial-gradient(ellipse 34% 26% at 18% 22%, rgba(224, 177, 42, 0.05), transparent 70%);
-}
-.depth-layer.depth-2 {
-  background: radial-gradient(ellipse 30% 24% at 84% 60%, rgba(196, 60, 20, 0.05), transparent 70%);
-}
-
-/* Synchronized bubbles — one global layer, all bubbles share the same rise
-   timeline (per-bubble duration/delay/drift via custom properties), so the
-   drift feels like a single current flowing behind every section. */
-.bubbles-layer {
+/* Tiny dot field glued to the viewport. The dots sit under the page content,
+   are too small to read as text against the sections, and glow briefly near
+   the cursor through the JS-driven cursor field below. */
+.dots-field {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
 }
-.bubble {
+.dots-field .dot {
   position: absolute;
-  bottom: -40px;
-  left: var(--x, 50%);
-  width: var(--size, 10px);
-  height: var(--size, 10px);
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 30%, rgba(255, 244, 200, 0.45), rgba(245, 208, 106, 0.12) 55%, rgba(245, 208, 106, 0.03) 78%, transparent 82%);
-  box-shadow: 0 0 10px rgba(245, 208, 106, 0.08);
-  opacity: 0;
-  animation: bubbleRise var(--dur, 40s) linear var(--delay, 0s) infinite;
+  background: rgba(245, 233, 210, 0.32);
+  box-shadow: 0 0 6px rgba(245, 233, 210, 0.28);
   will-change: transform, opacity;
 }
-@keyframes bubbleRise {
-  0%   { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
-  10%  { opacity: 0.35; }
-  30%  { transform: translate3d(var(--drift, 20px), -26vh, 0) scale(0.95); opacity: 0.4; }
-  55%  { transform: translate3d(calc(var(--drift, 20px) * -0.6), -52vh, 0) scale(1); opacity: 0.38; }
-  80%  { transform: translate3d(var(--drift, 20px), -78vh, 0) scale(1.03); opacity: 0.2; }
-  96%  { opacity: 0; }
-  100% { transform: translate3d(calc(var(--drift, 20px) * -0.3), -108vh, 0) scale(1.06); opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .bubbles-layer { display: none !important; }
+.dots-field .dot.active {
+  background: rgba(255, 246, 218, 0.95);
+  box-shadow: 0 0 14px rgba(245, 208, 106, 0.9), 0 0 30px rgba(224, 177, 42, 0.45);
 }
 
-/* Independent global light orbs — three sources, each from a different
-   origin/duration/delay. The page feels alive instead of strobing from one
-   repeating light, and the orbs pass behind the content safely. */
-.light-orb {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0.55;
-  animation: floatOrbGlobal 24s ease-in-out infinite;
-  will-change: transform;
-}
-.light-orb-1 {
-  width: 38vw;
-  height: 38vw;
-  min-width: 280px;
-  min-height: 280px;
-  top: -5vh;
-  left: -12vw;
-  background: radial-gradient(circle, rgba(224, 177, 42, 0.24), rgba(224, 177, 42, 0.07) 45%, transparent 70%);
-}
-.light-orb-2 {
-  width: 34vw;
-  height: 34vw;
-  min-width: 240px;
-  min-height: 240px;
-  top: 40vh;
-  right: -8vw;
-  background: radial-gradient(circle, rgba(200, 80, 22, 0.2), rgba(200, 80, 22, 0.05) 45%, transparent 70%);
-  animation-duration: 30s;
-  animation-delay: -9s;
-}
-.light-orb-3 {
-  width: 28vw;
-  height: 28vw;
-  min-width: 200px;
-  min-height: 200px;
-  bottom: -4vh;
-  left: 26vw;
-  background: radial-gradient(circle, rgba(245, 208, 106, 0.2), rgba(245, 208, 106, 0.05) 45%, transparent 70%);
-  animation-duration: 33s;
-  animation-delay: -15s;
-}
-@keyframes floatOrbGlobal {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(1.8%, -2.6%) scale(1.03); }
-}
-
-/* Sections: translucent panes over the fixed glow + canvas.
-   A slightly stronger gradient from the top keeps text high-contrast,
-   while the lowered mid-alpha lets the animated background breathe through */
+/* Sections stay readable over the dot field. Slightly translucent so the dots
+   can breathe through near the edges, but solid enough for text contrast. */
 .section {
   position: relative;
   z-index: 1;
   background:
-    linear-gradient(180deg, rgba(8, 5, 3, 0.86) 0%, rgba(8, 5, 3, 0.6) 22%, rgba(8, 5, 3, 0.44) 45%, rgba(8, 5, 3, 0.6) 78%, rgba(8, 5, 3, 0.86) 100%) !important;
+    linear-gradient(180deg, rgba(8, 5, 3, 0.88) 0%, rgba(8, 5, 3, 0.66) 22%, rgba(8, 5, 3, 0.5) 45%, rgba(8, 5, 3, 0.66) 78%, rgba(8, 5, 3, 0.88) 100%) !important;
 }
 .section:nth-of-type(even),
 .about,
@@ -312,48 +143,55 @@ body::after {
 .faq,
 .booking {
   background:
-    linear-gradient(180deg, rgba(10, 7, 5, 0.88) 0%, rgba(10, 7, 5, 0.64) 20%, rgba(10, 7, 5, 0.48) 50%, rgba(10, 7, 5, 0.64) 80%, rgba(10, 7, 5, 0.88) 100%) !important;
+    linear-gradient(180deg, rgba(10, 7, 5, 0.9) 0%, rgba(10, 7, 5, 0.7) 20%, rgba(10, 7, 5, 0.54) 50%, rgba(10, 7, 5, 0.7) 80%, rgba(10, 7, 5, 0.9) 100%) !important;
 }
 
-.hero {
-  position: relative;
-  z-index: 1;
-}
-.header {
-  z-index: 1000;
-}
+.hero { position: relative; z-index: 1; }
+.header { z-index: 1000; }
 .footer {
   position: relative;
   z-index: 1;
   background: linear-gradient(180deg, #0a0705, #040302) !important;
 }
 
-/* Containers sit above the lighting layers */
-.section > .container,
-.menu-section > .container {
-  position: relative;
-  z-index: 2;
+/* Keep the decorative hero orbs, but dimmer than before so they do not
+   reintroduce the heavy lighting look you asked to remove. */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  animation: floatOrb 14s ease-in-out infinite;
+}
+.orb-1 {
+  width: 240px;
+  height: 240px;
+  top: 15%;
+  left: 8%;
+  background: rgba(224, 177, 42, 0.1);
+  animation-delay: 0.1s;
+}
+.orb-2 {
+  width: 200px;
+  height: 200px;
+  bottom: 20%;
+  right: 10%;
+  background: rgba(196, 60, 20, 0.08);
+  animation-delay: 0.3s;
+  animation-duration: 16s;
+}
+@keyframes floatOrb {
+  0%, 100% { opacity: 0.5; transform: translate(0, 0) scale(1); }
+  50% { opacity: 0.85; transform: translate(16px, -22px) scale(1.05); }
 }
 
 /* Respect users who ask for reduced motion. */
 @media (prefers-reduced-motion: reduce) {
-  .mesh,
-  .light-orb,
-  .stars-layer {
+  .dots-field .dot {
     animation: none !important;
-    opacity: 0.3 !important;
-  }
-  .mesh {
-    opacity: 0.35 !important;
-  }
-  body {
-    background-image:
-      radial-gradient(ellipse 120% 70% at 50% -10%, rgba(224, 177, 42, 0.14), transparent 55%),
-      radial-gradient(ellipse 55% 45% at 0% 30%, rgba(196, 60, 20, 0.08), transparent 60%),
-      radial-gradient(ellipse 45% 50% at 100% 55%, rgba(200, 120, 30, 0.07), transparent 55%),
-      radial-gradient(ellipse 80% 40% at 50% 112%, rgba(60, 30, 15, 0.25), transparent 50%),
-      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(40, 25, 15, 0.22), transparent 70%),
-      linear-gradient(180deg, #0b0705 0%, #050302 38%, #080604 100%);
+    transition: none !important;
   }
 }
 a { color: inherit; text-decoration: none; }
@@ -1448,49 +1286,39 @@ body::after {
 }
 
 /* ============================================================
-   GLOW BOOST — slightly warmer ambient light, calmer bubbles.
-   (appended last so it overrides the earlier ambient layers on
-   every page that loads styles.css)
+   GLOW BOOST — cursor-reactive dot field only.
+   The old ambient bubbles / hot orbs / star shimmer are removed. The only
+   glowing moment left is the dot field lighting up near the pointer.
    ============================================================ */
-.bubble {
-  /* softer warm core + tighter halo, so each bubble reads as a quiet ember
-     instead of a bright flash */
-  background:
-    radial-gradient(circle at 32% 28%,
-      rgba(255, 250, 228, 0.7),
-      rgba(255, 228, 148, 0.4) 32%,
-      rgba(245, 208, 106, 0.16) 58%,
-      rgba(245, 208, 106, 0.05) 80%,
-      transparent 86%);
-  box-shadow:
-    0 0 6px rgba(255, 240, 190, 0.35),
-    0 0 16px rgba(245, 208, 106, 0.22);
+.dots-field .dot {
+  transition: transform 0.25s var(--ease), opacity 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
 }
-/* Same rise path, a little slower and lower-contrast so the bubbles stay
-   present without distracting from the section content. */
-@keyframes bubbleRise {
-  0%   { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
-  10%  { opacity: 0.5; }
-  30%  { transform: translate3d(var(--drift, 20px), -26vh, 0) scale(0.95); opacity: 0.55; }
-  55%  { transform: translate3d(calc(var(--drift, 20px) * -0.6), -52vh, 0) scale(1); opacity: 0.5; }
-  80%  { transform: translate3d(var(--drift, 20px), -78vh, 0) scale(1.03); opacity: 0.28; }
-  96%  { opacity: 0; }
-  100% { transform: translate3d(calc(var(--drift, 20px) * -0.3), -108vh, 0) scale(1.06); opacity: 0; }
-}
-/* Ambient orbs stay warm but calmer. */
-.light-orb { opacity: 0.6; }
-.light-orb-1 {
-  background: radial-gradient(circle, rgba(224, 177, 42, 0.28), rgba(224, 177, 42, 0.08) 45%, transparent 70%);
-}
-.light-orb-2 {
-  background: radial-gradient(circle, rgba(200, 80, 22, 0.24), rgba(200, 80, 22, 0.06) 45%, transparent 70%);
-}
-.light-orb-3 {
-  background: radial-gradient(circle, rgba(245, 208, 106, 0.24), rgba(245, 208, 106, 0.06) 45%, transparent 70%);
-}
-/* A touch more starlight shimmer, still restrained. */
-.stars-layer.stars-a { opacity: 0.55; }
-.stars-layer.stars-b { opacity: 0.38; }
 @media (prefers-reduced-motion: reduce) {
-  .bubble { animation: none !important; }
+  .dots-field .dot {
+    transition: none !important;
+  }
+}
+
+/* Remove the old ambient lighting layer rules so they stop competing with the
+   new dot-field background. These are harmless duplicates now, but they still
+   try to add mesh/stars/light-orb/bubbles back on every page that loads the
+   stylesheet, so drop them here too. */
+.mesh,
+.mesh::before,
+.mesh::after,
+.stars-layer,
+.stars-layer.stars-b,
+.depth-layer,
+.depth-layer.depth-1,
+.depth-layer.depth-2,
+.light-orb,
+.light-orb-1,
+.light-orb-2,
+.light-orb-3,
+.bubbles-layer,
+.bubble {
+  display: none !important;
+}
+body::after {
+  display: none !important;
 }

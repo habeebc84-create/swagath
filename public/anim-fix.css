@@ -76,13 +76,9 @@
   .gallery-grid .gal-item::after {
     display: none !important;
   }
-  .hero-media img { opacity: 1; }
-  .hero-overlay { opacity: 1; }
-  .hero-content { opacity: 1; }
-  .hero-content > *,
-  .hero-content .hero-welcome,
-  .hero-overlay { opacity: 1; animation: none !important; }
-  .hero-overlay { opacity: 1; }
+  /* The site now uses a dot field instead of the old lighting layer, so the
+   reduced-motion block no longer needs to unhide any hero media / overlay /
+   content states that no longer exist. */
 }
 
 /* ---- Hero ----

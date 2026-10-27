@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="/anim-fix.css">
   <link rel="stylesheet" href="/hover-fx.css">
   <link rel="stylesheet" href="/beauty.css">
-  <link rel="stylesheet" href="/stars-lights.css">
+  <link rel="stylesheet" href="/stars-lights.css" media="none" onload="this.media='all'">
   <link rel="stylesheet" href="/interactive-light.css">
   <link rel="stylesheet" href="/site-fix.css">
   <noscript><style>
@@ -74,16 +74,8 @@
 </head>
 <body>
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
-  <div class="mesh" aria-hidden="true"></div>
-  <div class="stars-layer stars-a" aria-hidden="true"></div>
-  <div class="stars-layer stars-b" aria-hidden="true"></div>
-  <div class="light-orb light-orb-1" aria-hidden="true"></div>
-  <div class="light-orb light-orb-2" aria-hidden="true"></div>
-  <div class="light-orb light-orb-3" aria-hidden="true"></div>
-  <div class="depth-layer depth-1" aria-hidden="true"></div>
-  <div class="depth-layer depth-2" aria-hidden="true"></div>
-  <canvas id="particles" aria-hidden="true"></canvas>
-  <div class="bubbles-layer" aria-hidden="true">
+  <div class="dots-field" aria-hidden="true" id="dotsField"></div>
+  <div class="dots-cursor" aria-hidden="true" id="dotsCursor"></div>
     <span class="bubble" style="--x:6%;--size:10px;--dur:34s;--delay:0s;--drift:26px"></span>
     <span class="bubble" style="--x:15%;--size:16px;--dur:28s;--delay:-6s;--drift:-32px"></span>
     <span class="bubble" style="--x:24%;--size:8px;--dur:38s;--delay:-12s;--drift:18px"></span>
@@ -676,7 +668,6 @@
 
   <script src="/smooth-page.js"></script>
   <script src="/app.js"></script>
-  <script src="/particles.js"></script>
-  <script src="/interactive-light.js"></script>
+  <script src="/dots-field.js" defer></script>
 </body>
 </html>
