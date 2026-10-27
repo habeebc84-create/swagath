@@ -5,7 +5,7 @@
   if (!dotsField) return;
 
   var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var gap = 26;
+  var gap = 22;
   var cols = Math.ceil(window.innerWidth / gap) + 2;
   var rows = Math.ceil(window.innerHeight / gap) + 2;
   var dotCount = cols * rows;
@@ -55,7 +55,7 @@
       var driftY = Math.cos((elapsed * 0.00019) + (i * 0.13)) * 3.0;
       dotX[i] = homeX + driftX;
       dotY[i] = homeY + driftY;
-      dotEls[i].style.transform = 'translate3d(' + dotX[i] + 'px,' + dotY[i] + 'px,0) scale(' + (dotActive[i] ? 1 : 1) + ')';
+      dotEls[i].style.transform = 'translate3d(' + dotX[i] + 'px,' + dotY[i] + 'px,0)';
       dotEls[i].style.left = '0px';
       dotEls[i].style.top = '0px';
     }
@@ -66,11 +66,10 @@
         dotActive[j] = 0;
         dotActive[j] = 0;
       dotActive[j] = 0;
-      dotEls[j].classList.remove('active');
-      dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0) scale(1)';
-      dotEls[j].style.opacity = '';
-      dotEls[j].style.background = '';
-      dotEls[j].style.boxShadow = '';
+      dotEls[j].classList.remove('active');        dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0)';
+        dotEls[j].style.opacity = '';
+        dotEls[j].style.background = '';
+        dotEls[j].style.boxShadow = '';
       }
       return;
     }
@@ -96,6 +95,9 @@
       if (active) {
         dotEls[k].style.background = 'rgba(255,244,200,' + alpha + ')';
         dotEls[k].style.boxShadow = '0 0 ' + String(innerGlow).slice(0, 4) + 'px rgba(245,208,106,' + glow1 + '),' + '0 0 ' + String(outerGlow).slice(0, 4) + 'px rgba(224,177,42,' + glow2 + ')';
+      } else {
+        dotEls[k].style.background = '';
+        dotEls[k].style.boxShadow = '';
       }
     }
   }
