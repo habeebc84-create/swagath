@@ -38,17 +38,11 @@
     if (p == null) return;
     cursorX = p.clientX;
     cursorY = p.clientY;
-    if (dotsCursor && dotsCursor.style) {
-      dotsCursor.style.transform = 'translate3d(' + (cursorX - 6) + 'px,' + (cursorY - 6) + 'px,0)';
-    }
   }
 
   function onLeave() {
     cursorX = null;
     cursorY = null;
-    if (dotsCursor && dotsCursor.style) {
-      dotsCursor.style.transform = 'translate3d(-100px,-100px,0)';
-    }
   }
 
   window.addEventListener('mousemove', onMove, { passive: true });
@@ -118,7 +112,7 @@
       return;
     }
 
-    var cursorGlowRadius = 150;
+    var cursorGlowRadius = 280;
     var cursorGlowX = cursorX;
     var cursorGlowY = cursorY;
     for (var k = 0; k < dotCount; k++) {
@@ -128,20 +122,18 @@
       var active = dist < cursorGlowRadius ? 1 : 0;
       dotActive[k] = active;
       var strength = active ? Math.max(0, 1 - dist / cursorGlowRadius) : 0;
-      var scale = 1 + strength * 2.8;
-      var innerGlow = strength * 12;
-      var outerGlow = strength * 28;
-      var alpha = 0.35 + strength * 0.7;
+      var scale = 1 + strength * 1.4;
+      var innerGlow = strength * 10;
+      var alpha = 0.4 + strength * 0.6;
       var glow1 = (0.5 + strength * 0.5).toFixed(2);
-      var glow2 = (0.25 + strength * 0.45).toFixed(2);
 
       if (active) {
-        var pull = strength * 0.18;
+        var pull = strength * 0.12;
         dotVelX[k] += (dx / (dist || 1)) * pull;
         dotVelY[k] += (dy / (dist || 1)) * pull;
       } else {
-        dotVelX[k] *= 0.94;
-        dotVelY[k] *= 0.94;
+        dotVelX[k] *= 0.92;
+        dotVelY[k] *= 0.92;
       }
       dotX[k] += dotVelX[k];
       dotY[k] += dotVelY[k];
@@ -151,7 +143,7 @@
       dotEls[k].classList.toggle('active', active);
       if (active) {
         dotEls[k].style.background = 'rgba(255,244,200,' + alpha + ')';
-        dotEls[k].style.boxShadow = '0 0 ' + String(innerGlow).slice(0, 4) + 'px rgba(245,208,106,' + glow1 + '),' + '0 0 ' + String(outerGlow).slice(0, 4) + 'px rgba(224,177,42,' + glow2 + ')';
+        dotEls[k].style.boxShadow = '0 0 ' + String(innerGlow).slice(0, 4) + 'px rgba(245,208,106,' + glow1 + ')';
       } else {
         dotEls[k].style.background = '';
         dotEls[k].style.boxShadow = '';
@@ -190,6 +182,18 @@
       dotEls[i] = dot;
     }
     dotsField.appendChild(dotsCursor);
+    dotsCursor.style.position = 'absolute';
+    dotsCursor.style.width = '0px';
+    dotsCursor.style.height = '0px';
+    dotsCursor.style.opacity = '0';
+    dotsCursor.style.margin = '0';
+    dotsCursor.style.padding = '0';
+    dotsCursor.style.borderRadius = '0';
+    dotsCursor.style.background = 'transparent';
+    dotsCursor.style.boxShadow = 'none';
+    dotsCursor.style.transform = 'translate3d(-100px,-100px,0)';
+    dotsCursor.style.pointerEvents = 'none';
+    dotsCursor.style.zIndex = '0';
   }
 
   window.addEventListener('resize', function () { placeDots(); }, { passive: true });
