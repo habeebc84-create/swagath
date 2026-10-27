@@ -149,6 +149,13 @@ body {
   align-items: center;
   justify-content: center;
 }
+.dots-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
 .dots-field .dot {
   position: absolute;
   left: 0;
@@ -191,6 +198,13 @@ body {
   will-change: transform;
   transition: transform 0.05s linear;
   z-index: 9999;
+}
+
+@media (max-width: 720px) {
+  .dots-cursor {
+    width: 10px;
+    height: 10px;
+  }
 }
 
 /* Sections stay readable over the dot field. Slightly translucent so the dots
@@ -750,6 +764,7 @@ body::after {
   .logo-img { width: 48px; height: 48px; }
   .logo-telugu { font-size: 1.3rem; }
   .logo-en { font-size: 0.48rem; letter-spacing: 0.1em; }
+  .hero-title { max-width: 92%; }
 }
 .nav { display: flex; align-items: center; gap: 0.2rem; }
 .nav-link {
@@ -947,6 +962,20 @@ body::after {
 @keyframes scrollDot {
   0%, 100% { opacity: 1; transform: translateY(0); }
   50% { opacity: 0.2; transform: translateY(10px); }
+}
+
+.scroll-hint::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.scroll-hint {
+  margin-left: 0;
+}
+@media (max-width: 480px) {
+  .scroll-hint { display: none; }
+  .scroll-hint::after { display: none; }
 }
 
 .fade-up {
@@ -1357,6 +1386,7 @@ body::after {
   .section { padding: 4.5rem 0; }
   .container { width: calc(100% - 1.6rem); }
   .hero-title { font-size: 2.6rem; }
+  .scroll-hint { display: none; }
 }
 
 /* ============================================================
