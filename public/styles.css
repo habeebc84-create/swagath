@@ -273,16 +273,14 @@ body::after,
 .header {
   position: fixed; inset: 0 0 auto 0; z-index: 1000;
   padding: 1.15rem 0;
-  /* Opaque from the first pixel: the old transparent header let photos and
-     headings ghost through it, so nav links competed with whatever scrolled
-     underneath. The scrolled state only tightens the padding now. */
-  background: rgba(8, 6, 5, 0.96);
+  /* Fully solid: even 4% transparency let bright photos ghost through. */
+  background: #080605;
   border-bottom: 1px solid var(--glass-border);
   transition: padding 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
 }
 .header.scrolled {
   padding: 0.65rem 0;
-  background: rgba(8, 6, 5, 0.98);
+  background: #080605;
   border-bottom: 1px solid var(--glass-border);
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
@@ -393,8 +391,8 @@ body::after,
 .hero-overlay {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(6,4,3,0.45) 0%, rgba(6,4,3,0.14) 35%, rgba(6,4,3,0.88) 100%),
-    radial-gradient(ellipse at 50% 40%, transparent 22%, rgba(6,4,3,0.5) 100%);
+    linear-gradient(180deg, rgba(6,4,3,0.55) 0%, rgba(6,4,3,0.48) 40%, rgba(6,4,3,0.9) 100%),
+    radial-gradient(ellipse at 50% 42%, rgba(6,4,3,0.38) 0%, rgba(6,4,3,0.55) 100%);
 }
 /* floating orbs kept very muted so the only lighting is the small dot field */
 .orb {

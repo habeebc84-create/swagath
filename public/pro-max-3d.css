@@ -148,6 +148,6 @@ html { scroll-behavior: smooth; }
 
 /* Header glass */
 .header.scrolled {
-  background: rgba(8, 6, 5, 0.95) !important;
+  background: #080605 !important;
   box-shadow: 0 10px 32px rgba(0,0,0,0.45);
 }
