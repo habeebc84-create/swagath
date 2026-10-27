@@ -476,6 +476,82 @@
     });
   })();
 
+  /* Home hero slideshow: 5 photos rotating every 20 seconds with a
+     crossfade between two stacked images. Pauses while the tab is
+     hidden; with reduced motion the first photo stays put. A photo
+     that fails to load is skipped instead of showing a blank hero. */
+  (function heroSlideshow() {
+    var first = document.getElementById('heroImg');
+    var second = document.getElementById('heroImgNext');
+    if (!first || !second) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var SLIDES = [
+      { src: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=1920&q=85', alt: 'Chicken curry with naan' },
+      { src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1920&q=85', alt: 'Swagath restaurant dining room' },
+      { src: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=1920&q=85', alt: 'Signature tandoori' },
+      { src: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=1920&q=85', alt: 'Dum biryani' },
+      { src: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1920&q=85', alt: 'Warm dining ambience' }
+    ];
+    var index = 0;
+    var timer = null;
+    var imgs = [first, second];
+
+    function setActive(img, slide) {
+      img.alt = slide.alt;
+      img.setAttribute('aria-hidden', 'false');
+      img.classList.add('active');
+    }
+    function setInactive(img) {
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      img.classList.remove('active');
+    }
+
+    function show(nextIndex, skipped) {
+      index = (nextIndex + SLIDES.length) % SLIDES.length;
+      var incoming = imgs[index % 2];
+      var outgoing = imgs[(index + 1) % 2];
+      var slide = SLIDES[index];
+      incoming.onerror = function () {
+        incoming.onerror = null;
+        /* Skip a broken photo once; do not loop forever on bad URLs. */
+        if (!skipped) show(index + 1, true);
+      };
+      incoming.onload = function () {
+        incoming.onload = null;
+        setActive(incoming, slide);
+        setInactive(outgoing);
+      };
+      if (incoming.src !== slide.src) incoming.src = slide.src;
+      if (incoming.complete && incoming.naturalWidth > 0) {
+        incoming.onload = null;
+        setActive(incoming, slide);
+        setInactive(outgoing);
+      }
+    }
+
+    function start() {
+      if (timer || document.hidden) return;
+      timer = setInterval(function () { show(index + 1, false); }, 20000);
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+
+    /* Warm the cache for the remaining photos after the first paint. */
+    setTimeout(function () {
+      SLIDES.forEach(function (slide, i) {
+        if (i < 2) return;
+        var pre = new Image();
+        pre.src = slide.src;
+      });
+    }, 1500);
+    start();
+  })();
+
   (function loadHeroEditable() {
     var img = document.getElementById('heroImg');
     if (!img) return;

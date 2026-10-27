@@ -397,9 +397,14 @@ body::after,
   position: absolute; inset: 0;
 }
 .hero-media img {
+  position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover;
   animation: kenburns 20s var(--ease) infinite alternate;
+  /* Two stacked photos crossfade for the 20-second hero rotation. */
+  opacity: 0;
+  transition: opacity 1.2s ease;
 }
+.hero-media img.active { opacity: 1; }
 @keyframes kenburns {
   to { transform: scale(1.14) translate(-1%, -1%); }
 }
