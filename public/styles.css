@@ -116,16 +116,35 @@ body {
   pointer-events: none;
   overflow: hidden;
 }
+.dots-field {
+  pointer-events: none;
+}
 .dots-field .dot {
   position: absolute;
+  transform: translate3d(-50%, -50%, 0);
   border-radius: 50%;
-  background: rgba(245, 233, 210, 0.32);
-  box-shadow: 0 0 4px rgba(245, 233, 210, 0.22);
+  background: rgba(245, 233, 210, 0.18);
+  box-shadow: 0 0 6px rgba(245, 233, 210, 0.12);
   will-change: transform, opacity;
+  transition: transform 0.22s var(--ease), opacity 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 }
 .dots-field .dot.active {
-  background: rgba(255, 244, 200, 1);
-  box-shadow: 0 0 18px rgba(245, 208, 106, 1), 0 0 34px rgba(224, 177, 42, 0.6);
+  background: rgba(255, 245, 208, 1);
+  box-shadow: 0 0 18px rgba(245, 208, 106, 1), 0 0 34px rgba(224, 177, 42, 0.7);
+}
+
+.dots-cursor {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  transform: translate3d(-50%, -50%, 0);
+  pointer-events: none;
+  border-radius: 50%;
+  background: rgba(255, 245, 208, 0.85);
+  box-shadow: 0 0 22px rgba(245, 208, 106, 1), 0 0 50px rgba(224, 177, 42, 0.55);
+  will-change: transform;
+  transition: transform 0.06s linear;
+  z-index: 9999;
 }
 
 /* Sections stay readable over the dot field. Slightly translucent so the dots

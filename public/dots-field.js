@@ -55,8 +55,9 @@
       var driftY = Math.cos((elapsed * 0.00019) + (i * 0.13)) * 3.0;
       dotX[i] = homeX + driftX;
       dotY[i] = homeY + driftY;
-      dotEls[i].style.left = dotX[i] + 'px';
-      dotEls[i].style.top = dotY[i] + 'px';
+      dotEls[i].style.transform = 'translate3d(' + dotX[i] + 'px,' + dotY[i] + 'px,0) scale(' + (dotActive[i] ? 1 : 1) + ')';
+      dotEls[i].style.left = '0px';
+      dotEls[i].style.top = '0px';
     }
     var cx = cursorX;
     var cy = cursorY;
@@ -64,6 +65,10 @@
       for (var j = 0; j < dotCount; j++) {
         dotActive[j] = 0;
         dotEls[j].classList.remove('active');
+        dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0) scale(1)';
+        dotEls[j].style.opacity = '0.18';
+        dotEls[j].style.background = '';
+        dotEls[j].style.boxShadow = '';
       }
       return;
     }
@@ -83,13 +88,16 @@
       var innerGlow = strength * 14;
       var outerGlow = strength * 30;
       var alpha = 0.32 + strength * 0.7;
-      dotEls[k].style.transform = 'translate3d(' + (dx * 0.5) + 'px,' + (dy * 0.5) + 'px,0) scale(' + scale + ')';
+      dotEls[k].style.transform = 'translate3d(' + (dotX[k] + dx * 0.45) + 'px,' + (dotY[k] + dy * 0.45) + 'px,0) scale(' + scale + ')';
       dotEls[k].style.opacity = String(alpha);
       var bg = 'rgba(255,244,200,' + alpha + ')';
       var glow1 = (0.45 + strength * 0.55).toFixed(2);
       var glow2 = (0.2 + strength * 0.4).toFixed(2);
-      dotEls[k].style.background = bg;
-      dotEls[k].style.boxShadow = '0 0 ' + String(innerGlow).slice(0, 4) + 'px rgba(245,208,106,' + glow1 + '),' + '0 0 ' + String(outerGlow).slice(0, 4) + 'px rgba(224,177,42,' + glow2 + ')';
+      dotEls[k].classList.toggle('active', active);
+      if (active) {
+        dotEls[k].style.background = 'rgba(255,244,200,' + alpha + ')';
+        dotEls[k].style.boxShadow = '0 0 ' + String(innerGlow).slice(0, 4) + 'px rgba(245,208,106,' + glow1 + '),' + '0 0 ' + String(outerGlow).slice(0, 4) + 'px rgba(224,177,42,' + glow2 + ')';
+      }
     }
   }
 
