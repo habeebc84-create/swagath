@@ -41,7 +41,9 @@ body::after {
   background: transparent !important;
 }
 .hero { background: transparent !important; }
-.hero-overlay { display: none !important; }
+/* The hero overlay stays: it is the dark scrim that keeps the warm
+   hero text readable over a bright photo, not a lighting effect.
+   (It used to be hidden here, which left near-white text on the photo.) */
 .section::before { display: none !important; }
 
 .header { z-index: 1000; }

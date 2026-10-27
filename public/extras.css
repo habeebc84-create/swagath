@@ -10,7 +10,7 @@
   font-weight: 600;
   color: #f5d06a;
 }
-.promo-strip a { color: #fff; text-decoration: underline; margin-left: 0.4rem; }
+.promo-strip a { color: #f5d06a; text-decoration: underline; margin-left: 0.4rem; }
 
 /* Floating WhatsApp */
 .wa-float {
@@ -48,7 +48,7 @@
   gap: 1rem;
   padding: 0.35rem 0;
   font-size: 0.88rem;
-  color: rgba(247,239,228,0.75);
+  color: rgba(240,223,186,0.8);
   border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .hours-list li span:last-child { color: #f5d06a; font-weight: 600; }
@@ -60,7 +60,7 @@
   background: rgba(224,177,42,0.08);
   border: 1px solid rgba(224,177,42,0.2);
   font-size: 0.82rem;
-  color: rgba(247,239,228,0.8);
+  color: rgba(240,223,186,0.85);
 }
 
 .cater-notice {

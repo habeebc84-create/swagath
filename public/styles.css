@@ -10,8 +10,10 @@
   --gold: #e0b12a;
   --gold2: #f5d06a;
   --gold-glow: rgba(224, 177, 42, 0.35);
-  --cream: #f7efe4;
-  --muted: rgba(247, 239, 228, 0.55);
+  /* Warm sand text instead of near-white cream: still high-contrast on the
+     dark brown background, but it reads as warm restaurant light, not white. */
+  --cream: #f0dfba;
+  --muted: rgba(240, 223, 186, 0.75);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --spring: cubic-bezier(0.34, 1.45, 0.64, 1);
   --font-d: 'Cormorant Garamond', Georgia, serif;
@@ -271,11 +273,16 @@ body::after,
 .header {
   position: fixed; inset: 0 0 auto 0; z-index: 1000;
   padding: 1.15rem 0;
+  /* Opaque from the first pixel: the old transparent header let photos and
+     headings ghost through it, so nav links competed with whatever scrolled
+     underneath. The scrolled state only tightens the padding now. */
+  background: rgba(8, 6, 5, 0.96);
+  border-bottom: 1px solid var(--glass-border);
   transition: padding 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
 }
 .header.scrolled {
   padding: 0.65rem 0;
-  background: rgba(8, 6, 5, 0.94);
+  background: rgba(8, 6, 5, 0.98);
   border-bottom: 1px solid var(--glass-border);
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
@@ -459,12 +466,18 @@ body::after,
 }
 .hero-sub {
   font-size: clamp(0.95rem, 2vw, 1.15rem);
-  color: rgba(247, 239, 228, 0.92); font-weight: 500;
+  color: var(--cream); font-weight: 500;
   max-width: 460px; margin: 0 auto 2.2rem;
 }
 .hero-actions {
   display: flex; flex-wrap: wrap; gap: 0.9rem;
   justify-content: center; margin-bottom: 3.2rem;
+}
+/* Ghost buttons sit over the photo: give them a dark backing so the
+   warm text does not wash out on the bright parts of the image. */
+.hero-actions .btn-ghost {
+  background: rgba(6, 4, 3, 0.6);
+  border-color: rgba(240, 223, 186, 0.45);
 }
 .hero-delivery {
   font-size: 0.82rem; font-weight: 600;
@@ -735,7 +748,7 @@ body::after,
   transition: color 0.2s, background 0.2s, box-shadow 0.2s, border-color 0.2s;
   cursor: pointer;
 }
-.menu-tabs-group .tab:hover { color: #fff; border-color: rgba(224,177,42,0.4); }
+.menu-tabs-group .tab:hover { color: var(--gold2); border-color: rgba(224,177,42,0.4); }
 .menu-tabs-group .tab.active {
   color: #1a0c00;
   background: linear-gradient(135deg, var(--gold2), var(--gold));
@@ -783,7 +796,7 @@ body::after,
   background: rgba(224,177,42,0.06);
   padding-left: 0.7rem;
 }
-.menu-row .name { font-size: 0.9rem; color: rgba(247,239,228,0.8); flex: 1; font-weight: 500; }
+.menu-row .name { font-size: 0.9rem; color: rgba(240,223,186,0.92); flex: 1; font-weight: 500; }
 .menu-row .price { font-size: 0.9rem; font-weight: 700; color: var(--gold2); white-space: nowrap; }
 
 /* ========== GALLERY ========== */
@@ -817,8 +830,57 @@ body::after,
   transition: opacity 0.4s, transform 0.45s var(--ease);
 }
 @media (hover: hover) and (pointer: fine) {
-  .gal-caption { opacity: 0; transform: translateY(12px); }
-  .gal-item:hover .gal-caption { opacity: 1; transform: translateY(0); }
+  /* Captions stay visible on desktop too — hiding them until hover
+     contradicted the "captions always visible" gallery fix. */
+  .gal-item:hover .gal-caption { transform: translateY(0); }
+}
+
+/* ========== IMAGE PREVIEW (click a gallery / specials photo) ========== */
+.img-preview {
+  position: fixed; inset: 0; z-index: 6000;
+  display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(3, 2, 1, 0.88);
+  backdrop-filter: blur(8px);
+}
+.img-preview[hidden] { display: none !important; }
+.img-preview-figure {
+  max-width: min(920px, 88vw);
+  animation: previewIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes previewIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.img-preview-figure img {
+  width: 100%; height: auto; max-height: 76vh; object-fit: contain;
+  border-radius: 16px; border: 1px solid rgba(224, 177, 42, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6); background: #0c0807;
+}
+.img-preview-figure figcaption {
+  padding-top: 0.75rem; text-align: center;
+  color: var(--cream); font-weight: 600; font-size: 0.95rem;
+}
+.img-preview-close,
+.img-preview-nav {
+  flex-shrink: 0;
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 1.5rem; line-height: 1;
+  color: var(--gold2); background: rgba(20, 14, 10, 0.9);
+  border: 1px solid rgba(224, 177, 42, 0.4); cursor: pointer;
+}
+.img-preview-close { position: absolute; top: 1rem; right: 1rem; }
+.img-preview-nav:hover,
+.img-preview-close:hover { background: rgba(224, 177, 42, 0.2); }
+@media (max-width: 640px) {
+  .img-preview { gap: 0.4rem; padding: 0.5rem; }
+  .img-preview-close,
+  .img-preview-nav { width: 40px; height: 40px; font-size: 1.25rem; }
+  .img-preview-figure { max-width: 78vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .img-preview-figure { animation: none; }
 }
 
 /* ========== REVIEWS ========== */
@@ -840,7 +902,7 @@ body::after,
 }
 .stars { color: var(--gold); font-size: 0.8rem; letter-spacing: 0.12em; margin-bottom: 0.7rem; }
 .review-card blockquote {
-  font-size: 0.88rem; color: rgba(247,239,228,0.75); font-style: italic;
+  font-size: 0.88rem; color: rgba(240,223,186,0.82); font-style: italic;
   line-height: 1.55; margin-bottom: 1rem; font-weight: 500;
 }
 .review-card cite { font-size: 0.75rem; font-style: normal; color: var(--muted); font-weight: 600; }
@@ -903,7 +965,7 @@ body::after,
   font-family: var(--font-d); font-size: 1.45rem; font-weight: 600;
   color: var(--gold2); margin-bottom: 1rem;
 }
-.contact-card p { color: rgba(247,239,228,0.75); font-size: 0.92rem; margin-bottom: 0.4rem; font-weight: 500; }
+.contact-card p { color: rgba(240,223,186,0.82); font-size: 0.92rem; margin-bottom: 0.4rem; font-weight: 500; }
 .contact-card a.inline { color: var(--gold2); font-weight: 700; }
 .contact-card .btn { margin-top: 1.3rem; }
 
@@ -921,7 +983,7 @@ body::after,
   margin-bottom: 0.35rem;
 }
 .footer p { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
-.footer .admin-link { color: #2a1a14; font-size: 0.6rem; }
+.footer .admin-link { color: rgba(245,208,106,0.55); font-size: 0.6rem; }
 
 /* ========== REVEAL ========== */
 .reveal {

@@ -1,7 +1,11 @@
+/* Dark restaurant palette — this sheet loads first, so its variables must
+   already be the dark theme. An earlier light palette here (--bg #faf8f5,
+   --card #ffffff, --text #222222) fought the dark sheets that load after
+   it. styles.css redefines --bg/--cream with the same warm values. */
 :root {
-  --primary: #8B1A1A;
+  --primary: #e0b12a;
   --accent: #C45C26;
-  --bg: #faf8f5;
-  --card: #ffffff;
-  --text: #222222;
+  --bg: #060403;
+  --card: #16100e;
+  --text: #f0dfba;
 }

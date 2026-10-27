@@ -224,6 +224,9 @@
 
   var API = (window.__HATCHABLE__ && window.__HATCHABLE__.api) || '/api';
 
+  /* Fallback photo when a gallery / specials image fails to load. */
+  var IMAGE_FALLBACK = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=85';
+
   (function loadMenu() {
     var shell = document.querySelector('.menu-shell');
     if (!shell) return;
@@ -274,7 +277,7 @@
           var src = String(item.image_url || '').replace(/\"/g, '').replace(/</g, '');
           var cap = esc(item.caption || 'Gallery');
           return '<div class="' + cls + '">' +
-            '<img src="' + src + '" alt="' + cap + '" loading="lazy" decoding="async" onerror="this.style.opacity=0.3">' +
+            '<img src="' + src + '" alt="' + cap + '" loading="lazy" decoding="async" data-fallback="' + IMAGE_FALLBACK + '" onerror="this.onerror=null;this.src=this.dataset.fallback">' +
             '<span class="gal-caption">' + cap + '</span></div>';
         }).join('');
         observeReveals(galleryGrid);
@@ -296,11 +299,12 @@
       var blurb = esc(it.blurb || '');
       var price = esc(it.price || '');
       var imgAlt = title;
-      var onerror = fallback
-        ? "this.onerror=null;this.src='" + fallback + "';"
-        : "this.style.opacity=0.3;";
+      /* Every photo gets a fallback: a failed image shows the dining
+         photo instead of fading to a ghost at 30% opacity. */
+      var imgFallback = fallback || IMAGE_FALLBACK;
+      var onerror = "this.onerror=null;this.src=this.dataset.fallback;";
       return '<article class="special-card reveal">' +
-        '<img src="' + imgUrl + '" alt="' + imgAlt + '" loading="lazy" decoding="async" onerror="' + onerror + '">' +
+        '<img src="' + imgUrl + '" alt="' + imgAlt + '" loading="lazy" decoding="async" data-fallback="' + imgFallback + '" onerror="' + onerror + '">' +
         '<div class="special-body">' +
           '<h3>' + title + '</h3>' +
           (blurb ? '<p>' + blurb + '</p>' : '') +
@@ -355,6 +359,98 @@
         }
       })
       .catch(function () {});
+  })();
+
+  /* Image preview: tap/click a gallery or specials photo to see it large.
+     Delegated, so photos injected later by the gallery/specials fetches
+     work too. Esc closes, arrow keys move, focus returns on close. */
+  (function imagePreview() {
+    var overlay = document.getElementById('imgPreview');
+    var imgEl = document.getElementById('imgPreviewImg');
+    var capEl = document.getElementById('imgPreviewCaption');
+    var closeBtn = document.getElementById('imgPreviewClose');
+    var prevBtn = document.getElementById('imgPreviewPrev');
+    var nextBtn = document.getElementById('imgPreviewNext');
+    if (!overlay || !imgEl || !closeBtn) return;
+
+    var items = [];
+    var index = 0;
+    var lastFocus = null;
+
+    function collect() {
+      items = [];
+      var seen = {};
+      document.querySelectorAll('#galleryGrid img, #specialsGrid img').forEach(function (img) {
+        var src = img.currentSrc || img.src;
+        if (!src || seen[src]) return;
+        seen[src] = true;
+        var card = img.closest('.gal-item, .special-card');
+        var caption = '';
+        if (card) {
+          var cap = card.querySelector('.gal-caption');
+          var heading = card.querySelector('h3');
+          caption = cap ? cap.textContent.trim() : (heading ? heading.textContent.trim() : '');
+        }
+        items.push({ src: src, alt: img.alt || caption || 'Swagath photo', caption: caption || img.alt || '' });
+      });
+    }
+
+    function show(i) {
+      if (!items.length) return;
+      index = (i + items.length) % items.length;
+      var item = items[index];
+      imgEl.onerror = function () {
+        imgEl.onerror = null;
+        imgEl.src = IMAGE_FALLBACK;
+      };
+      imgEl.src = item.src;
+      imgEl.alt = item.alt;
+      capEl.textContent = item.caption;
+      capEl.style.display = item.caption ? '' : 'none';
+    }
+
+    function openAt(i) {
+      collect();
+      if (!items.length) return;
+      lastFocus = document.activeElement;
+      show(i);
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+
+    function close() {
+      overlay.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    document.addEventListener('click', function (e) {
+      var card = e.target.closest ? e.target.closest('.gal-item, .special-card') : null;
+      if (!card || e.target.closest('a, button')) return;
+      var img = card.querySelector('img');
+      if (!img) return;
+      collect();
+      var src = img.currentSrc || img.src;
+      var found = -1;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].src === src) { found = i; break; }
+      }
+      openAt(found < 0 ? 0 : found);
+    });
+
+    closeBtn.addEventListener('click', close);
+    if (prevBtn) prevBtn.addEventListener('click', function () { show(index - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { show(index + 1); });
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (overlay.hidden) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') show(index - 1);
+      else if (e.key === 'ArrowRight') show(index + 1);
+    });
   })();
 
   (function loadHeroEditable() {
