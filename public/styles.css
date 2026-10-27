@@ -69,33 +69,16 @@ img {
   will-change: transform;
 }
 
-/* Radially tone down glow around images and bright content panels
-   so the page reads as a calm surface, with the dot field as the only
-   reactive glow layer. This does not touch the dot field itself. */
-.hero-media,
-.hero-content,
-.gal-item,
-.gal-item img,
-.special-card img,
-.feature-card,
-.feature-card img,
-.review-card,
-.contact-card,
-.menu-shell,
-.booking-card {
+/* Cozier home image look: warmer highlights, softer contrast, deeper
+   shadows in the corners so the table scene feels inviting instead of
+   flat or over-processed. Only touches the hero media, not the dot field. */
+.hero-media img {
+  object-position: 50% 42%;
+  filter: contrast(1.04) brightness(1.02) saturate(1.06) sepia(0.06);
+}
+.hero-media {
   isolation: isolate;
-  backdrop-filter: saturate(0.9) blur(1px);
-}
-.hero-media img,
-.gal-item img {
-  filter: saturate(1.04) contrast(1.02);
-}
-.hero-content,
-.section-head,
-.menu-shell,
-.booking-card,
-.contact-card {
-  filter: saturate(1) contrast(1.01);
+  backdrop-filter: none;
 }
 
 /* Neutralize overly glowing text shadows on hero + section headings so
