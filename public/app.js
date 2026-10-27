@@ -487,28 +487,20 @@
 
       if (reduce) return;
 
-      /* Compositor-only parallax: the depth light pools and the hero drift
-         with the scroll. These targets carry no CSS animation of their own,
-         so an inline transform can never fight one (transforms only, no
-         layout, one rAF per scroll frame). */
+      /* Compositor-only micro parallax.
+         Keep this as light as possible: only the hero media gets a tiny
+         scroll-following drift. Everything else is left alone so scrolling
+         stays smooth on low-end phones. */
       var heroMedia = document.querySelector('.hero-media');
-      var heroContent = document.querySelector('.hero-content');
-      if (heroContent) {
-        heroContent.style.setProperty('--cw', 'clamp(92%, 100%, 100%)');
-      }
-      if (!heroMedia && !heroContent) return;
+      if (!heroMedia) return;
 
       var ticking = false;
       function paint() {
         ticking = false;
         var y = window.pageYOffset || document.documentElement.scrollTop || 0;
         var vh = window.innerHeight || 1;
-        var p = Math.min(1, y / vh);
-        if (heroMedia) heroMedia.style.transform = 'translate3d(0,' + (y * 0.16).toFixed(1) + 'px,0)';
-        if (heroContent) {
-          heroContent.style.transform = 'translate3d(0,' + (y * 0.24).toFixed(1) + 'px,0)';
-          heroContent.style.opacity = String(Math.max(0, 1 - p * 1.15));
-        }
+        var p = Math.min(1, y / Math.max(1, vh));
+        heroMedia.style.transform = 'translate3d(0,' + (y * 0.14).toFixed(1) + 'px,0)';
       }
       window.addEventListener('scroll', function () {
         if (ticking) return;
