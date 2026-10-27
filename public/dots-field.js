@@ -64,11 +64,13 @@
     if (cx == null || cy == null) {
       for (var j = 0; j < dotCount; j++) {
         dotActive[j] = 0;
-        dotEls[j].classList.remove('active');
-        dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0) scale(1)';
-        dotEls[j].style.opacity = '0.18';
-        dotEls[j].style.background = '';
-        dotEls[j].style.boxShadow = '';
+        dotActive[j] = 0;
+      dotActive[j] = 0;
+      dotEls[j].classList.remove('active');
+      dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0) scale(1)';
+      dotEls[j].style.opacity = '';
+      dotEls[j].style.background = '';
+      dotEls[j].style.boxShadow = '';
       }
       return;
     }
@@ -88,11 +90,8 @@
       var innerGlow = strength * 14;
       var outerGlow = strength * 30;
       var alpha = 0.32 + strength * 0.7;
-      dotEls[k].style.transform = 'translate3d(' + (dotX[k] + dx * 0.45) + 'px,' + (dotY[k] + dy * 0.45) + 'px,0) scale(' + scale + ')';
+      dotEls[k].style.transform = 'translate3d(' + dotX[k] + 'px,' + dotY[k] + 'px,0) scale(' + scale + ')';
       dotEls[k].style.opacity = String(alpha);
-      var bg = 'rgba(255,244,200,' + alpha + ')';
-      var glow1 = (0.45 + strength * 0.55).toFixed(2);
-      var glow2 = (0.2 + strength * 0.4).toFixed(2);
       dotEls[k].classList.toggle('active', active);
       if (active) {
         dotEls[k].style.background = 'rgba(255,244,200,' + alpha + ')';

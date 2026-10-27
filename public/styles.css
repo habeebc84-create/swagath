@@ -121,16 +121,26 @@ body {
 }
 .dots-field .dot {
   position: absolute;
-  transform: translate3d(-50%, -50%, 0);
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 3px;
+  margin-left: -1px;
+  margin-top: -1px;
   border-radius: 50%;
   background: rgba(245, 233, 210, 0.18);
-  box-shadow: 0 0 6px rgba(245, 233, 210, 0.12);
   will-change: transform, opacity;
-  transition: transform 0.22s var(--ease), opacity 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 }
 .dots-field .dot.active {
-  background: rgba(255, 245, 208, 1);
-  box-shadow: 0 0 18px rgba(245, 208, 106, 1), 0 0 34px rgba(224, 177, 42, 0.7);
+  background: #ffe9b8;
+  box-shadow: 0 0 16px rgba(245, 208, 106, 1), 0 0 36px rgba(224, 177, 42, 0.8);
+  animation: dotGlow 0.6s ease-out;
+}
+
+@keyframes dotGlow {
+  0% { transform: scale(1); opacity: 1; }
+  55% { transform: scale(1.45); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .dots-cursor {
