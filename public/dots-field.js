@@ -3,7 +3,14 @@
   var dotsField = document.getElementById('dotsField');
   var dotsCursor = document.getElementById('dotsCursor');
   if (!dotsField) return;
+  if (document.readyState === 'complete') {
+    init();
+  } else {
+    window.addEventListener('load', init, { passive: true });
+  }
+  return;
 
+  function init() {
   var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var gap = 24;
   var cols = Math.ceil(window.innerWidth / gap) + 2;
@@ -30,10 +37,11 @@
   var cursorY = null;
 
   function onMove(e) {
-    var p = e.touches ? e.touches[0] : e;
-    if (p == null) return;
-    if (e.type === 'touchmove' || e.type === 'touchstart') {
+    var p = null;
+    if (e.touches && e.touches[0]) {
       p = e.touches[0];
+    } else if (e.clientX != null) {
+      p = e;
     }
     if (p == null) return;
     cursorX = p.clientX;
@@ -45,32 +53,39 @@
     cursorY = null;
   }
 
+  function onMouseEnter() {
+    if (cursorX == null || cursorY == null) {
+      cursorX = -1000;
+      cursorY = -1000;
+    }
+  }
+
   window.addEventListener('mousemove', onMove, { passive: true });
-  window.addEventListener('touchmove', onMove, { passive: true });
-  window.addEventListener('touchstart', onMove, { passive: true });
+  window.addEventListener('mouseenter', onMouseEnter, { passive: true });
   window.addEventListener('mouseleave', onLeave, { passive: true });
+  window.addEventListener('touchmove', onMove, { passive: true });
+  window.addEventListener('touchstart', function (e) {
+    onMove(e);
+  }, { passive: true });
   window.addEventListener('touchend', onLeave, { passive: true });
+  window.addEventListener('touchcancel', onLeave, { passive: true });
 
   var animStart = performance.now();
-  var ticking = false;
+  var raf = 0;
   var schedule = function (now) {
     animStart = now;
-    ticking = false;
+    raf = 0;
     layoutDots(now);
+    if (document.readyState === 'complete' || document.hidden) { raf = 0; return; }
+    raf = requestAnimationFrame(loop);
   };
   var loop = function (now) {
-    if (!ticking) {
-      ticking = true;
-      schedule(now);
-    }
-    requestAnimationFrame(loop);
+    schedule(now);
   };
-  requestAnimationFrame(loop);
+  raf = requestAnimationFrame(loop);
 
   function layoutDots(now) {
     var elapsed = now - animStart;
-    var period = 760;
-    var t = (elapsed % period) / period;
     for (var i = 0; i < dotCount; i++) {
       var scaled = i * 0.71;
       var homeX = (scaled % cols) * gap - gap;
@@ -86,63 +101,62 @@
       dotX[i] += dotVelX[i];
       dotY[i] += dotVelY[i];
       dotEls[i].style.transform = 'translate3d(' + dotX[i] + 'px,' + dotY[i] + 'px,0)';
-      dotEls[i].style.left = '0px';
-      dotEls[i].style.top = '0px';
     }
 
     if (cursorX == null || cursorY == null) {
       for (var j = 0; j < dotCount; j++) {
         dotActive[j] = 0;
         dotEls[j].classList.remove('active');
-        dotVelX[j] *= 0.86;
-        dotVelY[j] *= 0.86;
+        dotVelX[j] *= 0.88;
+        dotVelY[j] *= 0.88;
         dotX[j] += dotVelX[j];
         dotY[j] += dotVelY[j];
-        var reboundX = (dotHomeX[j] - dotX[j]) * 0.05;
-        var reboundY = (dotHomeY[j] - dotY[j]) * 0.05;
+        var reboundX = (dotHomeX[j] - dotX[j]) * 0.06;
+        var reboundY = (dotHomeY[j] - dotY[j]) * 0.06;
         dotVelX[j] += reboundX;
         dotVelY[j] += reboundY;
         dotX[j] += reboundX;
         dotY[j] += reboundY;
         dotEls[j].style.transform = 'translate3d(' + dotX[j] + 'px,' + dotY[j] + 'px,0)';
-        dotEls[j].style.opacity = '';
+        dotEls[j].style.opacity = '0';
         dotEls[j].style.background = '';
         dotEls[j].style.boxShadow = '';
       }
       return;
     }
 
-    var cursorGlowRadius = 280;
-    var cursorGlowX = cursorX;
-    var cursorGlowY = cursorY;
+    var cursorGlowRadius = 200;
+    var px = cursorX;
+    var py = cursorY;
+    var radiusSq = cursorGlowRadius * cursorGlowRadius;
     for (var k = 0; k < dotCount; k++) {
-      var dx = dotX[k] - cursorGlowX;
-      var dy = dotY[k] - cursorGlowY;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      var active = dist < cursorGlowRadius ? 1 : 0;
+      var dx = dotX[k] - px;
+      var dy = dotY[k] - py;
+      var distSq = dx * dx + dy * dy;
+      var active = distSq < radiusSq ? 1 : 0;
       dotActive[k] = active;
-      var strength = active ? Math.max(0, 1 - dist / cursorGlowRadius) : 0;
-      var scale = 1 + strength * 1.4;
-      var innerGlow = strength * 10;
-      var alpha = 0.4 + strength * 0.6;
+      var strength = active ? Math.max(0, 1 - Math.sqrt(distSq) / cursorGlowRadius) : 0;
+      var scale = 1 + strength * 1.2;
+      var innerGlow = strength * 9;
+      var alpha = 0.42 + strength * 0.58;
       var glow1 = (0.5 + strength * 0.5).toFixed(2);
 
       if (active) {
-        var pull = strength * 0.12;
-        dotVelX[k] += (dx / (dist || 1)) * pull;
-        dotVelY[k] += (dy / (dist || 1)) * pull;
+        var pull = strength * 0.11;
+        dotVelX[k] += (dx / (Math.sqrt(distSq) || 1)) * pull;
+        dotVelY[k] += (dy / (Math.sqrt(distSq) || 1)) * pull;
       } else {
-        dotVelX[k] *= 0.92;
-        dotVelY[k] *= 0.92;
+        dotVelX[k] *= 0.93;
+        dotVelY[k] *= 0.93;
       }
       dotX[k] += dotVelX[k];
       dotY[k] += dotVelY[k];
 
       dotEls[k].style.transform = 'translate3d(' + dotX[k] + 'px,' + dotY[k] + 'px,0) scale(' + scale + ')';
-      dotEls[k].style.opacity = String(alpha);
+      dotEls[k].style.opacity = alpha.toFixed(3);
       dotEls[k].classList.toggle('active', active);
       if (active) {
-        dotEls[k].style.background = 'rgba(255,244,200,' + alpha + ')';
+        dotEls[k].style.background = 'rgba(255,244,200,' + alpha.toFixed(3) + ')';
         dotEls[k].style.boxShadow = '0 0 ' + String(innerGlow).slice(0, 4) + 'px rgba(245,208,106,' + glow1 + ')';
       } else {
         dotEls[k].style.background = '';
@@ -153,12 +167,17 @@
 
   if (reduceMotion) {
     dotsField.style.display = 'none';
+    return;
   }
 
   var ro = null;
   if (window.ResizeObserver) {
-    ro = new ResizeObserver(function () { placeDots(); });
-    ro.observe(dotsField);
+    try {
+      ro = new ResizeObserver(function () { placeDots(); });
+      ro.observe(dotsField);
+    } catch (err) {
+      ro = null;
+    }
   }
 
   function placeDots() {
@@ -182,19 +201,17 @@
       dotEls[i] = dot;
     }
     dotsField.appendChild(dotsCursor);
-    dotsCursor.style.position = 'absolute';
-    dotsCursor.style.width = '0px';
-    dotsCursor.style.height = '0px';
-    dotsCursor.style.opacity = '0';
-    dotsCursor.style.margin = '0';
-    dotsCursor.style.padding = '0';
-    dotsCursor.style.borderRadius = '0';
-    dotsCursor.style.background = 'transparent';
-    dotsCursor.style.boxShadow = 'none';
-    dotsCursor.style.transform = 'translate3d(-100px,-100px,0)';
-    dotsCursor.style.pointerEvents = 'none';
-    dotsCursor.style.zIndex = '0';
   }
 
   window.addEventListener('resize', function () { placeDots(); }, { passive: true });
+
+  window.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    } else {
+      animStart = performance.now();
+      if (!raf) { raf = requestAnimationFrame(loop); }
+    }
+  }, { passive: true });
+  }
 })();

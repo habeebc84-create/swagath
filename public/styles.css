@@ -156,24 +156,14 @@ body {
   margin-left: -1px;
   margin-top: -1px;
   border-radius: 50%;
-  background: rgba(245, 233, 210, 0.18);
+  background: rgba(245, 233, 210, 0.12);
   will-change: transform, opacity, background, box-shadow;
 }
 .dots-field .dot.active {
   background: #ffe9b8;
-  box-shadow: 0 0 10px rgba(245, 208, 106, 1);
-  animation: dotGlow 0.35s ease-out;
+  box-shadow: 0 0 8px rgba(245, 208, 106, 1);
 }
 
-@keyframes dotGlow {
-  0% { transform: scale(1); opacity: 1; }
-  55% { transform: scale(1.45); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* The old large cursor light is gone. Keep the cursor element structurally
-   present for the JS, but render it as nothing so the only motion is the
-   small dot lights. */
 .dots-cursor {
   position: absolute !important;
   width: 0px !important;
