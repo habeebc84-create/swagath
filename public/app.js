@@ -202,6 +202,13 @@
   /* Throttled scroll — progress only, no parallax (was laggy) */
   var progress = document.getElementById('scrollProgress');
   var scrollTicking = false;
+  /* Dock behaviour: visible on Home/About; hides while scrolling down
+     past the About section; comes back when scrolling stops or reverses.
+     Reduced-motion users always keep the dock. */
+  var dockAbout = document.getElementById('about');
+  var dockLastY = window.scrollY || 0;
+  var dockHideTimer = null;
+  var dockReduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.addEventListener('scroll', function () {
     if (scrollTicking) return;
     scrollTicking = true;
@@ -213,6 +220,22 @@
       }
       if (header) header.classList.toggle('scrolled', window.scrollY > 40);
       if (backTop) backTop.classList.toggle('show', window.scrollY > 500);
+      if (header && !dockReduceMotion && dockAbout) {
+        var y = window.scrollY;
+        var aboutEnd = dockAbout.offsetTop + dockAbout.offsetHeight;
+        if (y <= aboutEnd) {
+          header.classList.remove('dock-hidden');
+        } else if (y > dockLastY + 2) {
+          header.classList.add('dock-hidden');
+        } else if (y < dockLastY - 2) {
+          header.classList.remove('dock-hidden');
+        }
+        dockLastY = y;
+        if (dockHideTimer) clearTimeout(dockHideTimer);
+        dockHideTimer = setTimeout(function () {
+          if (header) header.classList.remove('dock-hidden');
+        }, 350);
+      }
       scrollTicking = false;
     });
   }, { passive: true });
