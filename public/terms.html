@@ -4,6 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terms & Conditions · Swagath Multicuisine Restaurant Kalikiri</title>
+  <style>
+/* Make the Terms / Privacy viewing text readable again. The shared
+   stylesheet layers were stealing too much contrast, so the legal panes
+   looked near-invisible on mobile. Scope this narrowly to those two text
+   pages only, and leave the nav / footer links on their intended color.
+   nav / footer links keep their intended color / behavior. */
+.legal-nav { font-size: 0.92rem; color: #f5d06a; }
+.legal h2 { font-size: 1.3rem; color: #f5d06a; }
+.legal a, .legal-nav a { color: #f5d06a; }
+.legal .note { font-size: 0.85rem; color: rgba(247,239,228,0.7); }
+.legal p, .legal li { color: #f3ded0; }
+.legal .meta { color: rgba(247,239,228,0.5); }
+@media (max-width: 720px) {
+  .legal-nav { font-size: 0.9rem; }
+}
+</style>
   <meta name="description" content="Terms and Conditions for Swagath Multicuisine Restaurant A/C, Kalikiri — aligned with FSSAI, GST and Consumer Protection frameworks in India.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -46,9 +62,13 @@
       font-size: 0.85rem; color: #e0b12a;
     }
     /* Gentle entrance so the page animates in like the rest of the site */
-    .legal { animation: legalIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
-    @keyframes legalIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-    @media (prefers-reduced-motion: reduce) { .legal { animation: none; } }
+    /* Accessibility: the legal text is now explicitly readable via a
+       scoped, high-contrast style block above — not by fighting the global
+       stylesheet tokens. */     .legal { animation: legalIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+     @keyframes legalIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+     @media (prefers-reduced-motion: reduce) { .legal { animation: none; } }
+     /* Accessibility: legal text contrast is now handled above via the
+        scoped style block — not by this global entrance animation. */
   </style>
 </head>
 <body>
@@ -86,6 +106,7 @@
         <a href="/#menu" class="nav-link">Menu</a>
         <a href="/#contact" class="nav-link">Contact</a>
         <a href="/terms.html" class="nav-link nav-cta">Terms</a>
+        <a href="/privacy.html" class="nav-link">Privacy</a>
       </nav>
     </div>
   </header>
@@ -214,7 +235,7 @@
 
   <footer class="footer">
     <div class="container">
-      <p style="font-size:0.8rem;opacity:0.5;">© 2026 Swagath Multicuisine · Kalikiri · <a href="/terms.html" style="color:#e0b12a;">Terms &amp; Conditions</a></p>
+      <p style="font-size:0.8rem;opacity:0.5;">© 2026 Swagath Multicuisine · Kalikiri · <a href="/terms.html" style="color:#e0b12a;">Terms &amp; Conditions</a> · <a href="/privacy.html" style="color:#e0b12a;">Privacy</a></p>
     </div>
   </footer>
 </body>

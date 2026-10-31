@@ -371,11 +371,69 @@ body::after,
   transform: translateY(-2px) scale(1.03) !important;
   box-shadow: 0 8px 28px var(--gold-glow) !important;
   color: #1a0c00 !important;
-}
-.menu-toggle {
-  display: none; width: 44px; height: 44px; border-radius: 12px;
+}  .menu-toggle { display: none; width: 44px; height: 44px; border-radius: 12px;
   border: 1px solid var(--glass-border); background: var(--glass);
   font-size: 1.2rem; align-items: center; justify-content: center;
+ }
+
+/* Booking options chips — let the visitor choose dine-in / takeaway / delivery */
+.booking-options {
+  display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center;
+  margin-bottom: 1.4rem;
+}
+.opt-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  color: var(--cream);
+  font-size: 0.82rem; font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.22s var(--spring), border-color 0.22s, background 0.22s, box-shadow 0.22s;
+}
+.opt-chip:hover {
+  transform: translateY(-2px);
+  border-color: rgba(224,177,42,0.4);
+  background: rgba(224,177,42,0.08);
+}
+.opt-chip[aria-pressed="true"] {
+  background: linear-gradient(135deg, var(--gold2), var(--gold));
+  color: #1a0c00;
+  border-color: transparent;
+  box-shadow: 0 6px 22px var(--gold-glow);
+}
+.opt-chip[aria-pressed="true"]:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+/* Small screens should keep the booking options readable without cropping.
+   Same chip row is reused on desktop by the larger booking layout above. */
+@media (max-width: 480px) {
+  .booking-options {
+    gap: 0.5rem;
+  }
+  .opt-chip {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.78rem;
+  }
+}
+/* The booking options above are the main addition requested. Pages that load
+   the booking section via JavaScript should still keep the hidden-by-mode /
+   visible-by-mode behavior intact on mobile.
+   Visibility rule: the note below is small on purpose. */
+
+/* Hide fields that do not belong to the current booking mode */
+.booking-options ~ .booking-card .field.hidden-by-mode {
+  display: none;
+}
+.booking-options ~ .booking-card .field.visible-by-mode {
+  display: block;
+}
+
+/* Special request wording for each mode */
+.booking-note {
+  text-align: center; margin-top: 1rem;
+  font-size: 0.82rem; color: var(--muted); font-weight: 500;
 }
 
 /* ========== HERO — ULTRA ========== */

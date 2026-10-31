@@ -499,7 +499,12 @@
         <h2 class="section-title">Book a Table</h2>
         <p class="section-desc">Confirmed by phone</p>
       </div>
-      <form id="bookingForm" class="booking-card">
+      <form id="bookingForm" class="booking-card" novalidate>
+        <div class="booking-options">
+          <button type="button" class="opt-chip" data-mode="table" aria-pressed="true">🍽️ Table Dine-in</button>
+          <button type="button" class="opt-chip" data-mode="takeaway" aria-pressed="false">📦 Takeaway</button>
+          <button type="button" class="opt-chip" data-mode="delivery" aria-pressed="false">🚗 Delivery</button>
+        </div>
         <div class="form-grid">
           <div class="field"><label>Full Name *</label><input type="text" name="name" required placeholder="Your name"></div>
           <div class="field"><label>Phone *</label><input type="tel" name="phone" required placeholder="083400 03444"></div>
@@ -541,10 +546,17 @@
             </select>
           </div>
         </div>
-        <div class="field"><label>Special Request</label><textarea name="special_request" rows="3" placeholder="Birthday, window seat…"></textarea></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">Confirm Booking</button>
-        <p id="bookingMsg" class="form-msg"></p>
-      </form>
+        <div class="field" id="specialRequestField"><label>Special Request</label><textarea name="special_request" rows="3" placeholder="Birthday, window seat, allergies…"></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Confirm Booking</button>
+          <p id="bookingMsg" class="form-msg"></p>
+          <p class="booking-note">Available weekdays and weekends · Confirmation by call or WhatsApp · Cancellation free before 60 min.</p>
+        </form>
+        <!-- ========================================================
+             Binding: the new booking options above rely on CSS classes hidden-by-mode
+             / visible-by-mode driven by data-mode / aria-pressed. Pages that load the
+             booking section via JavaScript may need the same mode logic applied on
+             render, otherwise the hidden fields can leak back into view on mobile.
+             ======================================================== -->
     </div>
   </section>
 

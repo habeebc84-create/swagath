@@ -435,17 +435,217 @@
     });
   }
 
-  bindForm('bookingForm', 'bookingMsg', '/bookings/create', function (f) {
-    return {
-      name: f.name.value.trim(),
-      phone: f.phone.value.trim(),
-      email: f.email.value.trim() || null,
-      party_size: f.party_size.value,
-      booking_date: f.booking_date.value,
-      booking_time: f.booking_time.value,
-      special_request: f.special_request.value.trim() || null
+  (function bindBookingOptions() {
+    var form = document.getElementById('bookingForm');
+    if (!form) return;
+
+    var modeBtns = form.querySelectorAll('.opt-chip');
+    var mode = 'table';
+
+    var fieldsByMode = {
+      table: ['name', 'phone', 'email', 'party_size', 'booking_date', 'booking_time', 'special_request'],
+      takeaway: ['name', 'phone', 'email', 'items', 'pickup_time', 'special_request'],
+      delivery: ['name', 'phone', 'email', 'address', 'delivery_time', 'special_request']
     };
+
+    function applyMode() {
+      var fields = fieldsByMode[mode] || fieldsByMode.table;
+      var set = {};
+      fields.forEach(function (name) { set[name] = true; });
+
+      Array.prototype.forEach.call(form.elements, function (el) {
+        if (el && el.name && fieldsByMode[mode]) {
+          var isInMode = set[el.name];
+          if (el.classList) {
+            el.classList.toggle('hidden-by-mode', !isInMode);
+            el.classList.toggle('visible-by-mode', isInMode);
+            el.required = isInMode ? !!el.hasAttribute('data-keep-required') : false;
+          }
+        }
+      });
+
+      modeBtns.forEach(function (btn) {
+        var isActive = btn.dataset.mode === mode;
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        if (btn.tagName === 'BUTTON') btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+
+      var hint = form.querySelector('#specialRequestField label');
+      if (hint) {
+        var labelMap = {
+          table: 'Special Request',
+          takeaway: 'For here or to go?',
+          delivery: 'Delivery instructions'
+        };
+        hint.textContent = labelMap[mode] || 'Special Request';
+      }
+
+      var placeholderMap = {
+        table: 'Birthday, window seat, allergies…',
+        takeaway: 'Packaging note, extra cutlery…',
+        delivery: 'Gate code, floor, contact at address…'
+      };
+      var special = form.querySelector('[name="special_request"]');
+      if (special) special.placeholder = placeholderMap[mode] || '';
+
+      var addressLabel = form.querySelector('#addressField label');
+      if (addressLabel) {
+        addressLabel.textContent = mode === 'delivery' ? 'Delivery Address *' : 'Address (if known)';
+      }
+    }
+
+    modeBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var next = btn.dataset.mode;
+        if (!next || next === mode) return;
+        mode = next;
+        applyMode();
+      });
+    });
+
+    applyMode();
+  })();
+
+  bindForm('bookingForm', 'bookingMsg', '/bookings/create', function (f) {
+    var modeBtns = document.querySelectorAll('#bookingForm .opt-chip');
+    var mode = 'table';
+    modeBtns.forEach(function (b) {
+      if (b.getAttribute('aria-pressed') === 'true') mode = b.dataset.mode;
+    });
+
+    var get = function (name) {
+      var el = f.querySelector('[name="' + name + '"]');
+      if (!el) return null;
+      var v = el.value.trim();
+      return v || null;
+    };
+
+    var payload = {
+      name: get('name'),
+      phone: get('phone'),
+      email: get('email'),
+      party_size: f.party_size ? f.party_size.value : null,
+      booking_date: f.booking_date ? f.booking_date.value : null,
+      booking_time: f.booking_time ? f.booking_time.value : null,
+      special_request: get('special_request'),
+      booking_mode: mode,
+      takeaway_items: get('items'),
+      pickup_time: get('pickup_time'),
+      delivery_address: get('address'),
+      delivery_time: get('delivery_time')
+    };
+
+    if (mode === 'takeaway') {
+      payload.items = get('items');
+      payload.pickup_time = get('pickup_time');
+      payload.party_size = null;
+      payload.booking_date = null;
+      payload.booking_time = null;
+    } else if (mode === 'delivery') {
+      payload.delivery_address = get('address');
+      payload.delivery_time = get('delivery_time');
+      payload.party_size = null;
+      payload.booking_date = null;
+      payload.booking_time = null;
+    } else {
+      payload.items = null;
+      payload.pickup_time = null;
+      payload.delivery_address = null;
+      payload.delivery_time = null;
+      if (f.party_size) payload.party_size = f.party_size.value;
+      if (f.booking_date) payload.booking_date = f.booking_date.value;
+      if (f.booking_time) payload.booking_time = f.booking_time.value;
+    }
+
+    return payload;
   });
+
+  (function addMissingBookingFields() {
+    var form = document.getElementById('bookingForm');
+    if (!form) return;
+
+    var modeGroup = form.querySelector('.booking-options');
+    if (!modeGroup) return;
+
+    var itemsField = document.createElement('div');
+    itemsField.className = 'field';
+    itemsField.id = 'itemsField';
+    itemsField.innerHTML =
+      '<label>Items to order</label>' +
+      '<textarea name="items" rows="2" placeholder="Paneer 65, chicken biryani, coke 2…"></textarea>';
+
+    var pickupField = document.createElement('div');
+    pickupField.className = 'field';
+    pickupField.id = 'pickupTimeField';
+    pickupField.innerHTML =
+      '<label>Pickup Time</label>' +
+      '<select name="pickup_time">' +
+        '<option value="">Select time</option>' +
+        '<option value="ASAP">As soon as possible</option>' +
+        '<option value="11:00 AM">11:00 AM</option>' +
+        '<option value="12:00 PM">12:00 PM</option>' +
+        '<option value="1:00 PM">1:00 PM</option>' +
+        '<option value="12:30 PM">12:30 PM</option>' +
+        '<option value="1:30 PM">1:30 PM</option>' +
+        '<option value="2:00 PM">2:00 PM</option>' +
+        '<option value="7:00 PM">7:00 PM</option>' +
+        '<option value="7:30 PM">7:30 PM</option>' +
+        '<option value="8:00 PM">8:00 PM</option>' +
+        '<option value="8:30 PM">8:30 PM</option>' +
+      '</select>';
+
+    var addressField = document.createElement('div');
+    addressField.className = 'field';
+    addressField.id = 'addressField';
+    addressField.innerHTML =
+      '<label>Delivery Address</label>' +
+      '<textarea name="address" rows="2" placeholder="House / street / landmark"></textarea>';
+
+    var deliveryTimeField = document.createElement('div');
+    deliveryTimeField.className = 'field';
+    deliveryTimeField.id = 'deliveryTimeField';
+    deliveryTimeField.innerHTML =
+      '<label>Delivery Time</label>' +
+      '<select name="delivery_time">' +
+        '<option value="">Select time</option>' +
+        '<option value="ASAP">As soon as possible</option>' +
+        '<option value="11:00 AM">11:00 AM</option>' +
+        '<option value="12:00 PM">12:00 PM</option>' +
+        '<option value="12:30 PM">12:30 PM</option>' +
+        '<option value="1:00 PM">1:00 PM</option>' +
+        '<option value="1:30 PM">1:30 PM</option>' +
+        '<option value="2:00 PM">2:00 PM</option>' +
+        '<option value="7:00 PM">7:00 PM</option>' +
+        '<option value="7:30 PM">7:30 PM</option>' +
+        '<option value="8:00 PM">8:00 PM</option>' +
+        '<option value="8:30 PM">8:30 PM</option>' +
+      '</select>';
+
+    var specialField = document.getElementById('specialRequestField');
+    var refEl = specialField || form.querySelector('button[type="submit"]');
+    if (!refEl) return;
+
+    var beforeSubmit = () => {
+      if (modeGroup) {
+        form.insertBefore(itemsField, modeGroup);
+        form.insertBefore(pickupField, modeGroup);
+        form.insertBefore(addressField, modeGroup);
+        form.insertBefore(deliveryTimeField, modeGroup);
+      } else {
+        form.appendChild(itemsField);
+        form.appendChild(pickupField);
+        form.appendChild(addressField);
+        form.appendChild(deliveryTimeField);
+      }
+    };
+
+    var alreadyDone = window.__SWAGATH_BOOKING_FIELDS_DONE;
+    if (!alreadyDone) {
+      beforeSubmit();
+      window.__SWAGATH_BOOKING_FIELDS_DONE = true;
+    }
+  })();
+
 
   bindForm('cateringForm', 'cateringMsg', '/catering/create', function (f) {
     return {
