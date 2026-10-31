@@ -45,7 +45,7 @@ body {
   font-weight: 600 !important;
   line-height: 1.15 !important;
   letter-spacing: -0.02em;
-  background: linear-gradient(105deg, #f7efe4 0%, #f5d06a 50%, #e0b12a 100%);
+  background: linear-gradient(105deg, #f0dfba 0%, #f5d06a 50%, #e0b12a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -154,7 +154,7 @@ body {
   font-size: 1.15rem !important;
   font-style: italic;
   line-height: 1.55;
-  color: rgba(247, 239, 228, 0.88);
+  color: rgba(240,223,186,0.92);
 }
 .review-card .stars {
   color: #e0b12a;

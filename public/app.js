@@ -202,6 +202,13 @@
   /* Throttled scroll — progress only, no parallax (was laggy) */
   var progress = document.getElementById('scrollProgress');
   var scrollTicking = false;
+  /* Dock behaviour: visible on Home/About; hides while scrolling down
+     past the About section; comes back when scrolling stops or reverses.
+     Reduced-motion users always keep the dock. */
+  var dockAbout = document.getElementById('about');
+  var dockLastY = window.scrollY || 0;
+  var dockHideTimer = null;
+  var dockReduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.addEventListener('scroll', function () {
     if (scrollTicking) return;
     scrollTicking = true;
@@ -213,6 +220,22 @@
       }
       if (header) header.classList.toggle('scrolled', window.scrollY > 40);
       if (backTop) backTop.classList.toggle('show', window.scrollY > 500);
+      if (header && !dockReduceMotion && dockAbout) {
+        var y = window.scrollY;
+        var aboutEnd = dockAbout.offsetTop + dockAbout.offsetHeight;
+        if (y <= aboutEnd) {
+          header.classList.remove('dock-hidden');
+        } else if (y > dockLastY + 2) {
+          header.classList.add('dock-hidden');
+        } else if (y < dockLastY - 2) {
+          header.classList.remove('dock-hidden');
+        }
+        dockLastY = y;
+        if (dockHideTimer) clearTimeout(dockHideTimer);
+        dockHideTimer = setTimeout(function () {
+          if (header) header.classList.remove('dock-hidden');
+        }, 350);
+      }
       scrollTicking = false;
     });
   }, { passive: true });
@@ -223,6 +246,9 @@
   window.dispatchEvent(new Event('scroll'));
 
   var API = (window.__HATCHABLE__ && window.__HATCHABLE__.api) || '/api';
+
+  /* Fallback photo when a gallery / specials image fails to load. */
+  var IMAGE_FALLBACK = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=85';
 
   (function loadMenu() {
     var shell = document.querySelector('.menu-shell');
@@ -274,7 +300,7 @@
           var src = String(item.image_url || '').replace(/\"/g, '').replace(/</g, '');
           var cap = esc(item.caption || 'Gallery');
           return '<div class="' + cls + '">' +
-            '<img src="' + src + '" alt="' + cap + '" loading="lazy" decoding="async" onerror="this.style.opacity=0.3">' +
+            '<img src="' + src + '" alt="' + cap + '" loading="lazy" decoding="async" data-fallback="' + IMAGE_FALLBACK + '" onerror="this.onerror=null;this.src=this.dataset.fallback">' +
             '<span class="gal-caption">' + cap + '</span></div>';
         }).join('');
         observeReveals(galleryGrid);
@@ -296,11 +322,12 @@
       var blurb = esc(it.blurb || '');
       var price = esc(it.price || '');
       var imgAlt = title;
-      var onerror = fallback
-        ? "this.onerror=null;this.src='" + fallback + "';"
-        : "this.style.opacity=0.3;";
+      /* Every photo gets a fallback: a failed image shows the dining
+         photo instead of fading to a ghost at 30% opacity. */
+      var imgFallback = fallback || IMAGE_FALLBACK;
+      var onerror = "this.onerror=null;this.src=this.dataset.fallback;";
       return '<article class="special-card reveal">' +
-        '<img src="' + imgUrl + '" alt="' + imgAlt + '" loading="lazy" decoding="async" onerror="' + onerror + '">' +
+        '<img src="' + imgUrl + '" alt="' + imgAlt + '" loading="lazy" decoding="async" data-fallback="' + imgFallback + '" onerror="' + onerror + '">' +
         '<div class="special-body">' +
           '<h3>' + title + '</h3>' +
           (blurb ? '<p>' + blurb + '</p>' : '') +
@@ -355,6 +382,174 @@
         }
       })
       .catch(function () {});
+  })();
+
+  /* Image preview: tap/click a gallery or specials photo to see it large.
+     Delegated, so photos injected later by the gallery/specials fetches
+     work too. Esc closes, arrow keys move, focus returns on close. */
+  (function imagePreview() {
+    var overlay = document.getElementById('imgPreview');
+    var imgEl = document.getElementById('imgPreviewImg');
+    var capEl = document.getElementById('imgPreviewCaption');
+    var closeBtn = document.getElementById('imgPreviewClose');
+    var prevBtn = document.getElementById('imgPreviewPrev');
+    var nextBtn = document.getElementById('imgPreviewNext');
+    if (!overlay || !imgEl || !closeBtn) return;
+
+    var items = [];
+    var index = 0;
+    var lastFocus = null;
+
+    function collect() {
+      items = [];
+      var seen = {};
+      document.querySelectorAll('#galleryGrid img, #specialsGrid img').forEach(function (img) {
+        var src = img.currentSrc || img.src;
+        if (!src || seen[src]) return;
+        seen[src] = true;
+        var card = img.closest('.gal-item, .special-card');
+        var caption = '';
+        if (card) {
+          var cap = card.querySelector('.gal-caption');
+          var heading = card.querySelector('h3');
+          caption = cap ? cap.textContent.trim() : (heading ? heading.textContent.trim() : '');
+        }
+        items.push({ src: src, alt: img.alt || caption || 'Swagath photo', caption: caption || img.alt || '' });
+      });
+    }
+
+    function show(i) {
+      if (!items.length) return;
+      index = (i + items.length) % items.length;
+      var item = items[index];
+      imgEl.onerror = function () {
+        imgEl.onerror = null;
+        imgEl.src = IMAGE_FALLBACK;
+      };
+      imgEl.src = item.src;
+      imgEl.alt = item.alt;
+      capEl.textContent = item.caption;
+      capEl.style.display = item.caption ? '' : 'none';
+    }
+
+    function openAt(i) {
+      collect();
+      if (!items.length) return;
+      lastFocus = document.activeElement;
+      show(i);
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+
+    function close() {
+      overlay.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    document.addEventListener('click', function (e) {
+      var card = e.target.closest ? e.target.closest('.gal-item, .special-card') : null;
+      if (!card || e.target.closest('a, button')) return;
+      var img = card.querySelector('img');
+      if (!img) return;
+      collect();
+      var src = img.currentSrc || img.src;
+      var found = -1;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].src === src) { found = i; break; }
+      }
+      openAt(found < 0 ? 0 : found);
+    });
+
+    closeBtn.addEventListener('click', close);
+    if (prevBtn) prevBtn.addEventListener('click', function () { show(index - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { show(index + 1); });
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (overlay.hidden) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') show(index - 1);
+      else if (e.key === 'ArrowRight') show(index + 1);
+    });
+  })();
+
+  /* Home hero slideshow: 5 photos rotating every 20 seconds with a
+     crossfade between two stacked images. Pauses while the tab is
+     hidden; with reduced motion the first photo stays put. A photo
+     that fails to load is skipped instead of showing a blank hero. */
+  (function heroSlideshow() {
+    var first = document.getElementById('heroImg');
+    var second = document.getElementById('heroImgNext');
+    if (!first || !second) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var SLIDES = [
+      { src: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=1920&q=85', alt: 'Chicken curry with naan' },
+      { src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1920&q=85', alt: 'Swagath restaurant dining room' },
+      { src: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=1920&q=85', alt: 'Signature tandoori' },
+      { src: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=1920&q=85', alt: 'Dum biryani' },
+      { src: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1920&q=85', alt: 'Warm dining ambience' }
+    ];
+    var index = 0;
+    var timer = null;
+    var imgs = [first, second];
+
+    function setActive(img, slide) {
+      img.alt = slide.alt;
+      img.setAttribute('aria-hidden', 'false');
+      img.classList.add('active');
+    }
+    function setInactive(img) {
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      img.classList.remove('active');
+    }
+
+    function show(nextIndex, skipped) {
+      index = (nextIndex + SLIDES.length) % SLIDES.length;
+      var incoming = imgs[index % 2];
+      var outgoing = imgs[(index + 1) % 2];
+      var slide = SLIDES[index];
+      incoming.onerror = function () {
+        incoming.onerror = null;
+        /* Skip a broken photo once; do not loop forever on bad URLs. */
+        if (!skipped) show(index + 1, true);
+      };
+      incoming.onload = function () {
+        incoming.onload = null;
+        setActive(incoming, slide);
+        setInactive(outgoing);
+      };
+      if (incoming.src !== slide.src) incoming.src = slide.src;
+      if (incoming.complete && incoming.naturalWidth > 0) {
+        incoming.onload = null;
+        setActive(incoming, slide);
+        setInactive(outgoing);
+      }
+    }
+
+    function start() {
+      if (timer || document.hidden) return;
+      timer = setInterval(function () { show(index + 1, false); }, 20000);
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+
+    /* Warm the cache for the remaining photos after the first paint. */
+    setTimeout(function () {
+      SLIDES.forEach(function (slide, i) {
+        if (i < 2) return;
+        var pre = new Image();
+        pre.src = slide.src;
+      });
+    }, 1500);
+    start();
   })();
 
   (function loadHeroEditable() {

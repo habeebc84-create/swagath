@@ -88,17 +88,10 @@
 
    Keep the visible hero text immediately readable: only animate the headline
    words, not the supporting subtext / buttons / meta chips. */
-@keyframes heroFadeUp {
-  from { opacity: 0; transform: translate3d(0, 16px, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
-}
-.hero-title > * {
-  opacity: 0;
-  animation: heroFadeUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) both !important;
-  animation-play-state: paused !important;
-}
-.hero-title > *:nth-child(1) { animation-delay: 0.05s !important; }
-.hero-title > *:nth-child(2) { animation-delay: 0.14s !important; }
+/* Hero entrance is the single heroIn animation on .hero-content in
+   pro-max-ux.css. Do not add a second, paused animation on the title
+   children: a paused animation with `both` fill left the headline
+   stuck at opacity 0 until a later override rescued it. */
 
 .hero-sub,
 .hero-actions,
@@ -224,17 +217,9 @@
    gate, so the headline always enters when the page paints.
    Keep the Telugu headline readable on load: it fades up instead of flashing.
    The English line keeps the strike-in feel. */
-@keyframes heroLetterFlare {
-  0%   { opacity: 0; transform: translate3d(0, 12px, 0) skewX(-3deg); }
-  55%  { opacity: 1; transform: translate3d(0, 0, 0) skewX(0); }
-  100% { opacity: 1; transform: none; }
-}
-.hero-title .en {
-  display: inline-block;
-  opacity: 0;
-  animation: heroLetterFlare 0.95s cubic-bezier(0.22, 1, 0.36, 1) both !important;
-  animation-delay: 0.14s !important;
-}
+/* No .en element exists in the hero title (the English line is a bare
+   text node), so the old heroLetterFlare strike-in matched nothing.
+   The Telugu line stays visible with no animation, as below. */
 .hero-title .telugu {
   display: inline-block;
   opacity: 1 !important;
@@ -338,4 +323,29 @@
     transform: none !important;
     filter: none !important;
   }
+  /* One place that freezes every remaining infinite / entrance motion:
+     the hero Ken Burns zoom, floating orbs, category glow, gallery light
+     sweep, marquees and pulses. Reveal content must stay visible, since
+     .reveal starts at opacity 0 and its entrance is what is disabled. */
+  .reveal,
+  .reveal.in,
+  .section.in .section-head .section-title,
+  .section.in .section-head .sub-title,
+  .hero-content > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-media img,
+  .orb,
+  .menu-tabs-wrap,
+  .gallery-grid .gal-item::after,
+  .marquee-track,
+  .menu-tabs-track,
+  .hero-badge .pulse,
+  .scroll-hint i {
+    animation: none !important;
+  }
+  .dots-field { display: none !important; }
 }

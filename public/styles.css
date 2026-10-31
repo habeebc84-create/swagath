@@ -10,8 +10,10 @@
   --gold: #e0b12a;
   --gold2: #f5d06a;
   --gold-glow: rgba(224, 177, 42, 0.35);
-  --cream: #f7efe4;
-  --muted: rgba(247, 239, 228, 0.55);
+  /* Warm sand text instead of near-white cream: still high-contrast on the
+     dark brown background, but it reads as warm restaurant light, not white. */
+  --cream: #f0dfba;
+  --muted: rgba(240, 223, 186, 0.75);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --spring: cubic-bezier(0.34, 1.45, 0.64, 1);
   --font-d: 'Cormorant Garamond', Georgia, serif;
@@ -147,21 +149,12 @@ body {
   overflow: hidden;
   touch-action: none;
 }
-.dots-field .dot {
+.dots-field canvas {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 2px;
-  height: 2px;
-  margin-left: -1px;
-  margin-top: -1px;
-  border-radius: 50%;
-  background: rgba(245, 233, 210, 0.12);
-  will-change: transform, opacity, background, box-shadow;
-}
-.dots-field .dot.active {
-  background: #ffe9b8;
-  box-shadow: 0 0 8px rgba(245, 208, 106, 1);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .dots-cursor {
@@ -246,12 +239,10 @@ body {
   50% { opacity: 0.5; transform: translate(8px, -12px) scale(1.03); }
 }
 
-/* Respect users who ask for reduced motion. */
+/* The dot field is one canvas now (dots-field.js) — no per-dot elements,
+   so there is no per-dot transition or glow animation to fight the JS. */
 @media (prefers-reduced-motion: reduce) {
-  .dots-field .dot {
-    animation: none !important;
-    transition: none !important;
-  }
+  .dots-field { display: none; }
 }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
@@ -278,19 +269,37 @@ body::after,
   display: none !important;
 }
 
-/* ========== HEADER ========== */
+/* ========== HEADER DOCK ========== */
+/* Floating rounded dock with clear dark glass: the logo + nav + Book Table
+   sit in a pill that floats over the hero. Clear on the home page; a
+   little stronger glass once scrolled. It hides while scrolling down past
+   the About section and comes back when scrolling stops or reverses
+   (see dock logic in app.js). */
 .header {
-  position: fixed; inset: 0 0 auto 0; z-index: 1000;
-  padding: 1.15rem 0;
-  transition: padding 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+  position: fixed; top: 14px; left: 50%; z-index: 1000;
+  width: min(1140px, calc(100% - 1.5rem));
+  transform: translateX(-50%);
+  padding: 0.5rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(8, 6, 5, 0.45);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(224, 177, 42, 0.25);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  transition: transform 0.4s var(--ease), opacity 0.35s ease, background 0.35s ease, padding 0.35s ease;
 }
 .header.scrolled {
-  padding: 0.65rem 0;
-  background: rgba(8, 6, 5, 0.94);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  padding: 0.45rem 0.6rem;
+  background: rgba(8, 6, 5, 0.62);
+  border: 1px solid rgba(224, 177, 42, 0.25);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
 }
-.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.header.dock-hidden {
+  transform: translate(-50%, calc(-100% - 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; padding-inline: 0.6rem; }
 .logo {
   display: flex;
   align-items: center;
@@ -446,17 +455,22 @@ body::after,
   position: absolute; inset: 0;
 }
 .hero-media img {
+  position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover;
   animation: kenburns 20s var(--ease) infinite alternate;
+  /* Two stacked photos crossfade for the 20-second hero rotation. */
+  opacity: 0;
+  transition: opacity 1.2s ease;
 }
+.hero-media img.active { opacity: 1; }
 @keyframes kenburns {
   to { transform: scale(1.14) translate(-1%, -1%); }
 }
 .hero-overlay {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(6,4,3,0.45) 0%, rgba(6,4,3,0.14) 35%, rgba(6,4,3,0.88) 100%),
-    radial-gradient(ellipse at 50% 40%, transparent 22%, rgba(6,4,3,0.5) 100%);
+    linear-gradient(180deg, rgba(6,4,3,0.55) 0%, rgba(6,4,3,0.48) 40%, rgba(6,4,3,0.9) 100%),
+    radial-gradient(ellipse at 50% 42%, rgba(6,4,3,0.38) 0%, rgba(6,4,3,0.55) 100%);
 }
 /* floating orbs kept very muted so the only lighting is the small dot field */
 .orb {
@@ -528,12 +542,18 @@ body::after,
 }
 .hero-sub {
   font-size: clamp(0.95rem, 2vw, 1.15rem);
-  color: rgba(247, 239, 228, 0.92); font-weight: 500;
+  color: var(--cream); font-weight: 500;
   max-width: 460px; margin: 0 auto 2.2rem;
 }
 .hero-actions {
   display: flex; flex-wrap: wrap; gap: 0.9rem;
   justify-content: center; margin-bottom: 3.2rem;
+}
+/* Ghost buttons sit over the photo: give them a dark backing so the
+   warm text does not wash out on the bright parts of the image. */
+.hero-actions .btn-ghost {
+  background: rgba(6, 4, 3, 0.6);
+  border-color: rgba(240, 223, 186, 0.45);
 }
 .hero-delivery {
   font-size: 0.82rem; font-weight: 600;
@@ -804,7 +824,7 @@ body::after,
   transition: color 0.2s, background 0.2s, box-shadow 0.2s, border-color 0.2s;
   cursor: pointer;
 }
-.menu-tabs-group .tab:hover { color: #fff; border-color: rgba(224,177,42,0.4); }
+.menu-tabs-group .tab:hover { color: var(--gold2); border-color: rgba(224,177,42,0.4); }
 .menu-tabs-group .tab.active {
   color: #1a0c00;
   background: linear-gradient(135deg, var(--gold2), var(--gold));
@@ -852,7 +872,7 @@ body::after,
   background: rgba(224,177,42,0.06);
   padding-left: 0.7rem;
 }
-.menu-row .name { font-size: 0.9rem; color: rgba(247,239,228,0.8); flex: 1; font-weight: 500; }
+.menu-row .name { font-size: 0.9rem; color: rgba(240,223,186,0.92); flex: 1; font-weight: 500; }
 .menu-row .price { font-size: 0.9rem; font-weight: 700; color: var(--gold2); white-space: nowrap; }
 
 /* ========== GALLERY ========== */
@@ -886,8 +906,57 @@ body::after,
   transition: opacity 0.4s, transform 0.45s var(--ease);
 }
 @media (hover: hover) and (pointer: fine) {
-  .gal-caption { opacity: 0; transform: translateY(12px); }
-  .gal-item:hover .gal-caption { opacity: 1; transform: translateY(0); }
+  /* Captions stay visible on desktop too — hiding them until hover
+     contradicted the "captions always visible" gallery fix. */
+  .gal-item:hover .gal-caption { transform: translateY(0); }
+}
+
+/* ========== IMAGE PREVIEW (click a gallery / specials photo) ========== */
+.img-preview {
+  position: fixed; inset: 0; z-index: 6000;
+  display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(3, 2, 1, 0.88);
+  backdrop-filter: blur(8px);
+}
+.img-preview[hidden] { display: none !important; }
+.img-preview-figure {
+  max-width: min(920px, 88vw);
+  animation: previewIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes previewIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.img-preview-figure img {
+  width: 100%; height: auto; max-height: 76vh; object-fit: contain;
+  border-radius: 16px; border: 1px solid rgba(224, 177, 42, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6); background: #0c0807;
+}
+.img-preview-figure figcaption {
+  padding-top: 0.75rem; text-align: center;
+  color: var(--cream); font-weight: 600; font-size: 0.95rem;
+}
+.img-preview-close,
+.img-preview-nav {
+  flex-shrink: 0;
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 1.5rem; line-height: 1;
+  color: var(--gold2); background: rgba(20, 14, 10, 0.9);
+  border: 1px solid rgba(224, 177, 42, 0.4); cursor: pointer;
+}
+.img-preview-close { position: absolute; top: 1rem; right: 1rem; }
+.img-preview-nav:hover,
+.img-preview-close:hover { background: rgba(224, 177, 42, 0.2); }
+@media (max-width: 640px) {
+  .img-preview { gap: 0.4rem; padding: 0.5rem; }
+  .img-preview-close,
+  .img-preview-nav { width: 40px; height: 40px; font-size: 1.25rem; }
+  .img-preview-figure { max-width: 78vw; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .img-preview-figure { animation: none; }
 }
 
 /* ========== REVIEWS ========== */
@@ -909,7 +978,7 @@ body::after,
 }
 .stars { color: var(--gold); font-size: 0.8rem; letter-spacing: 0.12em; margin-bottom: 0.7rem; }
 .review-card blockquote {
-  font-size: 0.88rem; color: rgba(247,239,228,0.75); font-style: italic;
+  font-size: 0.88rem; color: rgba(240,223,186,0.82); font-style: italic;
   line-height: 1.55; margin-bottom: 1rem; font-weight: 500;
 }
 .review-card cite { font-size: 0.75rem; font-style: normal; color: var(--muted); font-weight: 600; }
@@ -972,7 +1041,7 @@ body::after,
   font-family: var(--font-d); font-size: 1.45rem; font-weight: 600;
   color: var(--gold2); margin-bottom: 1rem;
 }
-.contact-card p { color: rgba(247,239,228,0.75); font-size: 0.92rem; margin-bottom: 0.4rem; font-weight: 500; }
+.contact-card p { color: rgba(240,223,186,0.82); font-size: 0.92rem; margin-bottom: 0.4rem; font-weight: 500; }
 .contact-card a.inline { color: var(--gold2); font-weight: 700; }
 .contact-card .btn { margin-top: 1.3rem; }
 
@@ -990,7 +1059,7 @@ body::after,
   margin-bottom: 0.35rem;
 }
 .footer p { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
-.footer .admin-link { color: #2a1a14; font-size: 0.6rem; }
+.footer .admin-link { color: rgba(245,208,106,0.55); font-size: 0.6rem; }
 
 /* ========== REVEAL ========== */
 .reveal {
@@ -1011,12 +1080,13 @@ body::after,
 }
 @media (max-width: 720px) {
   .nav {
-    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    display: none; position: absolute; top: calc(100% + 10px); left: 0; right: 0;
     flex-direction: column;
     background: rgba(6,4,3,0.96);
     backdrop-filter: blur(20px);
     padding: 1rem 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
     gap: 0.2rem;
   }
   .nav.open { display: flex; }
@@ -1038,13 +1108,9 @@ body::after,
    The old ambient bubbles / hot orbs / star shimmer are removed. The only
    glowing moment left is the dot field lighting up near the pointer.
    ============================================================ */
-.dots-field .dot {
-  transition: transform 0.22s var(--ease), opacity 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
-}
+/* The dot field is one canvas now (dots-field.js). Nothing per-dot here. */
 @media (prefers-reduced-motion: reduce) {
-  .dots-field .dot {
-    transition: none !important;
-  }
+  .dots-field { display: none; }
 }
 
 /* Suppress the remaining warm background wash / mesh / star / orb layers that
