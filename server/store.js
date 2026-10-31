@@ -19,10 +19,10 @@ const DATA_DIR = path.join(ROOT, ".data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 
 const SCHEMA = {
-  bookings: {
-    columns: ["id", "name", "phone", "email", "party_size", "booking_date", "booking_time", "special_request", "status", "created_at"],
-    defaults: { party_size: 2, status: "pending" }
-  },
+    bookings: {
+      columns: ["id","name","phone","email","party_size","booking_date","booking_time","special_request","booking_mode","items","pickup_time","address","delivery_address","delivery_time","location_lat","location_lng","location_source","location_status","status","created_at"],
+      defaults: { party_size: 2, status: "pending" }
+    },
   catering_inquiries: {
     columns: ["id", "name", "phone", "email", "event_type", "guest_count", "event_date", "event_location", "package_interest", "dietary_notes", "message", "status", "created_at"],
     defaults: { guest_count: 20, status: "new" }

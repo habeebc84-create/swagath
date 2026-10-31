@@ -11,13 +11,17 @@ function validToken(req) {
   const token = req.headers["x-staff-token"] || "";
   return token === expected;
 }
-
 export default async function (req, res) {
   if (!validToken(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   const { rows } = await db.query(
-    `SELECT id, name, phone, email, party_size, booking_date, booking_time, special_request, status, created_at
+    `SELECT id, name, phone, email, party_size,
+       booking_date, booking_time, special_request,
+       booking_mode, items, pickup_time,
+       address, delivery_address, delivery_time,
+       location_lat, location_lng, location_source, location_status,
+       status, created_at
      FROM bookings
      ORDER BY booking_date DESC, booking_time DESC
      LIMIT 100`

@@ -752,8 +752,29 @@
       if (f.booking_time) payload.booking_time = f.booking_time.value;
     }
 
-    return payload;
+    return buildPayloadWithLocation(payload);
   });
+
+  function buildPayloadWithLocation(payload) {
+    var input = document.querySelector('#bookingForm [name="location_address"]');
+    var liveBtn = document.querySelector('#bookingForm .loc-live-btn');
+    var state = window.__SWAGATH_BOOKING_LOC || {};
+
+    var address = input ? input.value.trim() : '';
+    var lat = state.lat != null ? state.lat : null;
+    var lng = state.lng != null ? state.lng : null;
+    var source = state.source || 'manual';        var status = state.status || 'pending';
+
+        if (payload.booking_mode === 'delivery' && address) {
+          status = state.status === 'valid' ? 'accepted' : (state.status === 'outside' ? 'outside' : 'pending');
+      payload.location_address = address;
+      payload.location_lat = lat;
+      payload.location_lng = lng;
+      payload.location_source = source;        payload.location_status = status;
+    }
+
+    return payload;
+  }
 
   (function addMissingBookingFields() {
     var form = document.getElementById('bookingForm');
@@ -816,6 +837,18 @@
         '<option value="8:30 PM">8:30 PM</option>' +
       '</select>';
 
+    var locationField = document.createElement('div');
+    locationField.className = 'field';
+    locationField.id = 'locationField';
+    locationField.innerHTML =
+      '<label>Delivery Location</label>' +
+      '<div class="loc-row">' +
+        '<input type="text" name="location_address" class="loc-input" placeholder="Kalikiri Cross Road or nearby address">' +
+        '<button type="button" class="loc-live btn btn-ghost loc-live-btn">📍 Use Live Location</button>' +
+      '</div>' +
+      '<div class="loc-status" role="status" aria-live="polite"></div>' +
+      '<div class="loc-detail"></div>';
+
     var specialField = document.getElementById('specialRequestField');
     var refEl = specialField || form.querySelector('button[type="submit"]');
     if (!refEl) return;
@@ -826,12 +859,15 @@
         form.insertBefore(pickupField, modeGroup);
         form.insertBefore(addressField, modeGroup);
         form.insertBefore(deliveryTimeField, modeGroup);
+        form.insertBefore(locationField, modeGroup);
       } else {
         form.appendChild(itemsField);
         form.appendChild(pickupField);
         form.appendChild(addressField);
         form.appendChild(deliveryTimeField);
+        form.appendChild(locationField);
       }
+      bindLocationFlow(form);
     };
 
     var alreadyDone = window.__SWAGATH_BOOKING_FIELDS_DONE;
@@ -840,6 +876,230 @@
       window.__SWAGATH_BOOKING_FIELDS_DONE = true;
     }
   })();
+
+  function bindLocationFlow(form) {
+    if (form.__swagathLocBound) return;
+    form.__swagathLocBound = true;
+
+    var input = form.querySelector('[name="location_address"]');
+    var statusEl = form.querySelector('#locationField .loc-status');
+    var detailEl = form.querySelector('#locationField .loc-detail');
+    var liveBtn = form.querySelector('.loc-live-btn');
+
+    if (!input || !statusEl || !detailEl || !liveBtn) return;
+
+    var state = {
+      status: 'idle',
+      address: null,
+      lat: null,
+      lng: null,
+      source: 'manual'
+    };
+
+    function statusFromCoords(lat, lng) {
+      if (lat == null || lng == null || !isFinite(lat) || !isFinite(lng)) return null;
+      return HELPERS.isKalikiriOrWithinKm(lat, lng, window.__SWAGATH_DRIFT_KM || 5.0) ? 'valid' : 'outside';
+    }
+
+    function renderStatus(msg, kind) {
+      statusEl.textContent = msg || '';
+      statusEl.className = 'loc-status' + (kind ? ' ' + kind : '');
+    }
+
+    function renderDetail() {
+      var parts = [];
+      if (state.address) parts.push('Address: ' + state.address);
+      if (state.lat != null && state.lng != null) {
+        parts.push('📍 ' + state.lat.toFixed(5) + ', ' + state.lng.toFixed(5));
+      }
+      if (state.source) parts.push('Source: ' + state.source);
+      detailEl.textContent = parts.join(' · ') || 'No location captured yet';
+    }
+
+    function setValid() {
+      statusEl.className = 'loc-status loc-ok';
+      renderStatus('Location accepted (Kalikiri or nearby)');
+      renderDetail();
+    }
+
+    function setOutside() {
+      statusEl.className = 'loc-status loc-err';
+      renderStatus('Location is outside Kalikiri / 5 km area');
+      renderDetail();
+    }
+
+    function setError(msg) {
+      statusEl.className = 'loc-status loc-err';
+      renderStatus(msg || 'Could not read location');
+      renderDetail();
+    }
+
+    window.__SWAGATH_DRIFT_KM = 5.0;
+
+    function buildPayloadWithLocation(payload) {
+      var loc = {};
+      loc.location_address = input.value.trim() || null;
+      loc.lat = state.lat;
+      loc.lng = state.lng;
+      loc.source = state.source || 'manual';
+      loc.location_status = state.status === 'valid' ? 'accepted' : state.status;
+
+      var hasCoords = state.lat != null && state.lng != null;
+      var hasAddress = loc.location_address;
+
+      if (hasCoords && state.status === 'valid') {
+        loc.location_status = 'accepted';
+      } else if (hasCoords && state.status === 'outside') {
+        loc.location_status = 'outside';
+      } else if (hasAddress && !hasCoords) {
+        loc.location_status = 'accepted';
+        state.status = 'valid';
+        state.source = 'manual';
+        setValid();
+      } else if (!hasAddress && !hasCoords) {
+        loc.location_status = 'pending';
+        loc.lat = null;
+        loc.lng = null;
+      }
+
+      payload.location_address = loc.location_address;
+      payload.location_lat = loc.lat;
+      payload.location_lng = loc.lng;
+      payload.location_source = loc.source;
+      payload.location_status = loc.location_status;
+
+      return payload;
+    }
+
+    var HELPERS = window.__SWAGATH_LOC_HELPERS;
+    if (!HELPERS) {
+      HELPERS = {
+        KALIKIRI_LAT: 13.7779,
+        KALIKIRI_LNG: 78.3870,
+        KALIKIRI_DRIFT_KM: 5.0,
+
+        isKalikiriOrWithinKm: function (lat, lng, maxKm) {
+          if (lat == null || lng == null || !isFinite(lat) || !isFinite(lng)) return false;
+          if (Math.abs(lat - KALIKIRI_LAT) > 0.05 || Math.abs(lng - KALIKIRI_LNG) > 0.05) return false;
+          var R = 6371.008;
+          var toRad = function (deg) { return deg * Math.PI / 180; };
+          var dLat = toRad(lat - KALIKIRI_LAT);
+          var dLng = toRad(lng - KALIKIRI_LNG);
+          var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+            + Math.cos(toRad(KALIKIRI_LAT)) * Math.cos(toRad(lat))
+            * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+          var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          return (R * c) <= (maxKm != null ? maxKm : this.KALIKIRI_DRIFT_KM);
+        },
+
+        geocodeKalikiri: function (query) {
+          var q = (query || '').toString().toLowerCase().trim();
+          if (!q) return null;
+          if (q.indexOf('kalikiri') !== -1) return { lat: 13.7779, lng: 78.3870, label: 'Kalikiri Cross Road' };
+          if (q.indexOf('andhra') !== -1 || q.indexOf('ap ') !== -1 || q.indexOf('517234') !== -1) {
+            if (q.indexOf('road') !== -1 || q.indexOf('cross') !== -1 || q.indexOf('st') !== -1 || q.indexOf('street') !== -1) {
+              return { lat: 13.7779, lng: 78.3870, label: 'Kalikiri area' };
+            }
+          }
+          return null;
+        }
+      };
+      window.__SWAGATH_LOC_HELPERS = HELPERS;
+    }
+
+    function refreshFromInput() {
+      var raw = input.value.trim();
+      if (!raw) {
+        state.address = null;
+        if (state.source === 'manual' || state.lat == null) {
+          state.status = 'pending';
+          if (state.lat == null || state.lng == null) {
+            state.lat = null;
+            state.lng = null;
+          }
+          renderStatus('Enter an address or use Live Location');
+        }
+        renderDetail();
+        return;
+      }
+
+      var guessed = HELPERS.geocodeKalikiri(raw);
+      if (guessed) {
+        state.address = raw;
+        state.lat = guessed.lat;
+        state.lng = guessed.lng;
+        state.source = 'manual';
+        state.status = statusFromCoords(guessed.lat, guessed.lng) || 'outside';
+        if (state.status === 'valid') setValid(); else setOutside();
+        renderDetail();
+        return;
+      }
+
+      state.address = raw;
+      state.status = 'manual-unvalidated';
+      if (state.lat == null || state.lng == null) {
+        renderStatus('Type a Kalikiri / nearby address or use Live Location');
+      } else {
+        renderStatus('Address typed — confirm with Live Location or keep as is');
+      }
+      renderDetail();
+    }
+
+    input.addEventListener('input', function () {
+      refreshFromInput();
+    });
+
+    liveBtn.addEventListener('click', function () {
+      if (!navigator.geolocation) {
+        setError('Live location is not available on this device');
+        return;
+      }
+      renderStatus('Getting live location…');
+      liveBtn.disabled = true;
+      liveBtn.textContent = 'Locating…';
+
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          var lat = pos.coords.latitude;
+          var lng = pos.coords.longitude;
+          var acc = pos.coords.accuracy;
+          state.lat = lat;
+          state.lng = lng;
+          state.source = 'live';
+
+          var address = input.value.trim();
+          if (!address) {
+            address = 'Kalikiri area (live location)';
+            input.value = address;
+          }
+          state.address = address;
+
+          state.status = statusFromCoords(lat, lng) || 'outside';
+          if (state.status === 'valid') setValid(); else setOutside();
+          renderDetail();
+          liveBtn.disabled = false;
+          liveBtn.textContent = '📍 Use Live Location';
+        },
+        function (err) {
+          var labels = {
+            1: 'Location access was denied. Type a Kalikiri / nearby address and we will keep the order.',
+            2: 'Location unavailable right now. Type a Kalikiri / nearby address.',
+            3: 'Location timed out. Type a Kalikiri / nearby address or try again.'
+          };
+          setError(labels[err.code] || 'Could not read live location');
+          liveBtn.disabled = false;
+          liveBtn.textContent = '📍 Use Live Location';
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 60000
+        }
+      );
+    });
+
+    refreshFromInput();
+  }
 
 
   bindForm('cateringForm', 'cateringMsg', '/catering/create', function (f) {
