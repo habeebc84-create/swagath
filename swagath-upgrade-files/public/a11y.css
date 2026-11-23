@@ -1,0 +1,98 @@
+/* Accessibility layer (WCAG 2.2 AA). Loaded last so it wins over earlier
+   decorative sheets. Keep it small and purposeful. */
+
+/* Skip link: hidden until focused by keyboard. */
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10000;
+  padding: 0.7rem 1.1rem;
+  border-radius: 10px;
+  background: #f5d06a;
+  color: #120b05;
+  font: 700 0.95rem/1.2 var(--font-b, system-ui), system-ui, sans-serif;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transition: top 0.15s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible { top: 1rem; outline: 3px solid #fff; outline-offset: 2px; }
+
+#main:focus { outline: none; }
+
+/* One clear, high-contrast keyboard focus ring everywhere. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #f5d06a !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(6, 4, 3, 0.85) !important;
+}
+
+/* WhatsApp button label: white on WhatsApp green was 2:1. Dark text passes. */
+.wa-float,
+.wa-float span { color: #062b14 !important; }
+
+/* Links inside running text are underlined so they don't rely on colour. */
+.legal p a,
+.legal li a,
+.faq-item p a,
+.contact-card p a.inline { text-decoration: underline; text-underline-offset: 2px; }
+
+/* Legal pages: readable secondary text on the dark canvas. */
+.legal .meta { color: rgba(247, 239, 228, 0.72) !important; }
+
+/* Minimum 24px target size (WCAG 2.5.8) for small icon buttons. */
+.img-preview-close,
+.img-preview-nav,
+.back-top { min-width: 44px; min-height: 44px; }
+
+/* Hero photo pause / play button. */
+.hero-pause {
+  position: absolute;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: 1.25rem;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 208, 106, 0.55);
+  background: rgba(10, 7, 5, 0.6);
+  color: #f5d06a;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.hero-pause:hover { background: rgba(10, 7, 5, 0.8); }
+.hero-pause .i-play { display: none; }
+.hero-pause.is-paused .i-play { display: inline; }
+.hero-pause.is-paused .i-pause { display: none; }
+.hero-pause[hidden] { display: none; }
+@media (max-width: 720px) {
+  .hero-pause { bottom: 5.5rem; } /* clear the mobile booking bar */
+}
+
+/* Respect reduced motion for anything an earlier sheet forgot. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Small header tagline and legal-page links: lift to AA contrast. */
+.logo-en { opacity: 1 !important; color: rgba(240, 223, 186, 0.78) !important; }
+.legal a[href^="http"],
+.legal a[href^="tel:"],
+.legal a[href^="mailto:"] { text-decoration: underline; text-underline-offset: 2px; }
+.footer p a { text-decoration: underline; text-underline-offset: 2px; }
